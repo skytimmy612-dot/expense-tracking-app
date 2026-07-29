@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>帳本 · LEDGER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <span class="brand-title">帳本</span>
+        <span class="brand-sub">LEDGER · 2025</span>
+      </div>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab-btn active" data-tab="ledger">明細</button>
+        <button type="button" class="tab-btn" data-tab="summary">分析</button>
+      </div>
+      <button type="button" class="btn-add" id="btnOpenModal">＋ 新增</button>
+    </header>
+
+    <section class="summary-banner" aria-label="本月摘要">
+      <div class="summary-cell">
+        <div class="summary-label">本月結餘</div>
+        <div class="summary-value large" id="balanceValue">NT$0</div>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-cell">
+        <div class="summary-label">收入</div>
+        <div class="summary-value income" id="incomeValue">NT$0</div>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-cell">
+        <div class="summary-label">支出</div>
+        <div class="summary-value expense" id="expenseValue">NT$0</div>
+      </div>
+    </section>
+
+    <main class="main">
+      <section id="panelLedger" class="panel">
+        <div class="filter-row">
+          <div class="filters">
+            <button type="button" class="filter-btn active" data-filter="all">全部</button>
+            <button type="button" class="filter-btn" data-filter="income">收入</button>
+            <button type="button" class="filter-btn" data-filter="expense">支出</button>
+          </div>
+          <span class="filter-count font-mono" id="txCount">0 筆</span>
+        </div>
+
+        <div class="ledger-head">
+          <span>日期</span>
+          <span>說明</span>
+          <span>分類</span>
+          <span>金額</span>
+          <span></span>
+        </div>
+        <div class="ledger-body" id="ledgerBody"></div>
+      </section>
+
+      <section id="panelSummary" class="panel hidden">
+        <div class="card card-full">
+          <div class="card-title font-serif">收支比例</div>
+          <div class="ratio-bar" id="ratioBar"></div>
+          <div class="ratio-labels">
+            <span class="font-mono income" id="ratioIncome">NT$0</span>
+            <span class="font-mono expense" id="ratioExpense">NT$0</span>
+          </div>
+        </div>
+
+        <div class="card card-full">
+          <div class="card-title font-serif">分類明細</div>
+          <div class="cat-list" id="catList"></div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="summary-label">儲蓄率</div>
+            <div class="stat-big font-serif" id="savingsRate">0%</div>
+            <div class="stat-note" id="savingsNote"></div>
+          </div>
+          <div class="card">
+            <div class="summary-label">交易筆數</div>
+            <div class="stat-big font-serif" id="txTotal">0</div>
+            <div class="stat-note" id="txBreakdown"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="font-serif modal-title" id="modalTitle">新增記帳</div>
+
+      <div class="type-toggle">
+        <button type="button" class="type-btn active expense" data-type="expense">－ 支出</button>
+        <button type="button" class="type-btn" data-type="income">＋ 收入</button>
+      </div>
+
+      <label class="field">
+        <span class="field-label">日期</span>
+        <input type="date" id="formDate" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">說明</span>
+        <input type="text" id="formDesc" placeholder="消費說明" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">分類</span>
+        <select id="formCategory"></select>
+      </label>
+
+      <label class="field">
+        <span class="field-label">金額 (NTD)</span>
+        <input type="number" id="formAmount" placeholder="0" min="0" class="font-mono" />
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="btnCancel">取消</button>
+        <button type="button" class="btn-confirm" id="btnConfirm">確認新增</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
