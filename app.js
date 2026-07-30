@@ -225,16 +225,123 @@ function renderHome() {
       const meta = catMeta(tx.category, tx.type);
       const sign = tx.type === "income" ? "+" : "-";
       return `
-        <div class="tx-item">
-          <div class="tx-icon" style="background:${meta.bg}">${meta.icon === "＋" ? "📎" : meta.icon}</div>
-          <div>
-            <div class="tx-title">${escapeHtml(txTitle(tx))}</div>
-            <div class="tx-time">${relativeTime(tx.date)}</div>
+        <div class="tx-swipe" data-id="${tx.id}">
+          <div class="tx-swipe-actions">
+            <button type="button" class="tx-delete-btn" data-delete="${tx.id}">刪除</button>
           </div>
-          <div class="tx-amt ${tx.type}">${sign}${fmt(tx.amount)}</div>
+          <div class="tx-swipe-content">
+            <div class="tx-icon" style="background:${meta.bg}">${meta.icon === "＋" ? "📎" : meta.icon}</div>
+            <div>
+              <div class="tx-title">${escapeHtml(txTitle(tx))}</div>
+              <div class="tx-time">${relativeTime(tx.date)}</div>
+            </div>
+            <div class="tx-amt ${tx.type}">${sign}${fmt(tx.amount)}</div>
+          </div>
         </div>`;
     })
     .join("");
+
+  bindSwipeRows(listEl);
+}
+
+const SWIPE_WIDTH = 88;
+let swipeState = null;
+
+function closeAllSwipes(except) {
+  document.querySelectorAll(".tx-swipe.open").forEach((row) => {
+    if (except && row === except) return;
+    row.classList.remove("open");
+    const content = row.querySelector(".tx-swipe-content");
+    if (content) {
+      content.style.transform = "";
+      content.classList.remove("dragging");
+    }
+  });
+}
+
+function bindSwipeRows(listEl) {
+  if (listEl.dataset.swipeBound === "1") return;
+  listEl.dataset.swipeBound = "1";
+
+  const getPoint = (e) => {
+    if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches[0]) {
+      return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+  };
+
+  const onStart = (e) => {
+    const content = e.target.closest(".tx-swipe-content");
+    if (!content || !listEl.contains(content)) return;
+    if (e.target.closest("[data-delete]")) return;
+    const row = content.closest(".tx-swipe");
+    closeAllSwipes(row);
+    const p = getPoint(e);
+    swipeState = {
+      row,
+      content,
+      startX: p.x,
+      startY: p.y,
+      baseX: row.classList.contains("open") ? -SWIPE_WIDTH : 0,
+      locked: null,
+      moved: false,
+    };
+    content.classList.add("dragging");
+  };
+
+  const onMove = (e) => {
+    if (!swipeState) return;
+    const p = getPoint(e);
+    const dx = p.x - swipeState.startX;
+    const dy = p.y - swipeState.startY;
+    if (!swipeState.locked) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      swipeState.locked = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+      if (swipeState.locked === "v") {
+        swipeState.content.classList.remove("dragging");
+        swipeState = null;
+        return;
+      }
+    }
+    if (swipeState.locked !== "h") return;
+    e.preventDefault();
+    swipeState.moved = true;
+    const next = Math.min(0, Math.max(-SWIPE_WIDTH, swipeState.baseX + dx));
+    swipeState.content.style.transform = `translateX(${next}px)`;
+  };
+
+  const onEnd = (e) => {
+    if (!swipeState) return;
+    const { row, content, startX, baseX, moved } = swipeState;
+    content.classList.remove("dragging");
+    const p = getPoint(e);
+    const dx = p.x - startX;
+    const finalX = Math.min(0, Math.max(-SWIPE_WIDTH, baseX + dx));
+    const shouldOpen = moved && (finalX < -SWIPE_WIDTH / 2 || dx < -40);
+    if (shouldOpen) {
+      row.classList.add("open");
+      content.style.transform = `translateX(-${SWIPE_WIDTH}px)`;
+    } else {
+      row.classList.remove("open");
+      content.style.transform = "";
+    }
+    swipeState = null;
+  };
+
+  listEl.addEventListener("touchstart", onStart, { passive: true });
+  listEl.addEventListener("touchmove", onMove, { passive: false });
+  listEl.addEventListener("touchend", onEnd);
+  listEl.addEventListener("mousedown", onStart);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onEnd);
+}
+
+function deleteTransaction(id) {
+  state.transactions = state.transactions.filter((t) => t.id !== id);
+  saveTransactions();
+  renderHome();
+  showToast("已刪除");
 }
 
 /* ── Add ── */
@@ -463,6 +570,13 @@ function bindEvents() {
   document.getElementById("btnViewAll").addEventListener("click", () => {
     state.showAllRecent = !state.showAllRecent;
     renderHome();
+  });
+
+  document.getElementById("recentList").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-delete]");
+    if (!btn) return;
+    e.preventDefault();
+    deleteTransaction(Number(btn.dataset.delete));
   });
 
   document.getElementById("quickCats").addEventListener("click", (e) => {

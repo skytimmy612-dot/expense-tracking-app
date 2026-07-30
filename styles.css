@@ -303,15 +303,57 @@ body {
 .tx-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  overflow: hidden;
 }
 
-.tx-item {
+.tx-swipe {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fee2e2;
+}
+
+.tx-swipe-actions {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 88px;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.tx-delete-btn {
+  width: 88px;
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tx-swipe-content {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 44px 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 10px 0;
+  padding: 10px 4px;
+  background: var(--bg);
+  transition: transform 0.2s ease;
+  touch-action: pan-y;
+  will-change: transform;
+}
+
+.tx-swipe.open .tx-swipe-content {
+  transform: translateX(-88px);
+}
+
+.tx-swipe-content.dragging {
+  transition: none;
 }
 
 .tx-icon {
