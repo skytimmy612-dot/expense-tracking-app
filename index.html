@@ -2,130 +2,187 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>帳本 · LEDGER</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>帳本</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app">
-    <header class="header">
-      <div class="brand">
-        <span class="brand-title">帳本</span>
-        <span class="brand-sub">LEDGER · 2025</span>
-      </div>
-      <div class="tabs" role="tablist">
-        <button type="button" class="tab-btn active" data-tab="ledger">明細</button>
-        <button type="button" class="tab-btn" data-tab="summary">分析</button>
-      </div>
-      <button type="button" class="btn-add" id="btnOpenModal">＋ 新增</button>
-    </header>
+    <!-- ── Home ── -->
+    <section class="screen screen-home" id="screenHome">
+      <header class="home-top">
+        <button type="button" class="icon-btn avatar-btn" aria-label="個人資料">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M5 19c1.5-3.5 4-5 7-5s5.5 1.5 7 5" />
+          </svg>
+        </button>
+        <h1 class="home-month" id="homeMonthTitle">2026年7月</h1>
+        <button type="button" class="icon-btn" aria-label="通知">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 9a6 6 0 0 1 12 0c0 7 2 7 2 9H4c0-2 2-2 2-9" />
+            <path d="M10 20a2 2 0 0 0 4 0" />
+          </svg>
+        </button>
+      </header>
 
-    <section class="summary-banner" aria-label="本月摘要">
-      <div class="summary-cell">
-        <div class="summary-label">本月結餘</div>
-        <div class="summary-value large" id="balanceValue">NT$0</div>
+      <div class="home-scroll">
+        <button type="button" class="balance-card" id="btnOpenReport">
+          <div class="balance-label">本月結餘</div>
+          <div class="balance-amount" id="homeBalance">NT$ 0</div>
+          <div class="balance-row">
+            <div class="balance-side">
+              <span class="side-icon income-icon">↓</span>
+              <div>
+                <div class="side-label">收入</div>
+                <div class="side-value income" id="homeIncome">NT$ 0</div>
+              </div>
+            </div>
+            <div class="balance-side">
+              <span class="side-icon expense-icon">↑</span>
+              <div>
+                <div class="side-label">支出</div>
+                <div class="side-value expense" id="homeExpense">NT$ 0</div>
+              </div>
+            </div>
+          </div>
+        </button>
+
+        <div class="quick-cats" id="quickCats"></div>
+
+        <div class="section-head">
+          <h2>最近交易</h2>
+          <button type="button" class="link-btn" id="btnViewAll">查看全部</button>
+        </div>
+        <div class="tx-list" id="recentList"></div>
       </div>
-      <div class="summary-divider"></div>
-      <div class="summary-cell">
-        <div class="summary-label">收入</div>
-        <div class="summary-value income" id="incomeValue">NT$0</div>
-      </div>
-      <div class="summary-divider"></div>
-      <div class="summary-cell">
-        <div class="summary-label">支出</div>
-        <div class="summary-value expense" id="expenseValue">NT$0</div>
+
+      <div class="home-footer">
+        <button type="button" class="btn-primary" id="btnOpenAdd">+ 新增一筆記帳</button>
       </div>
     </section>
 
-    <main class="main">
-      <section id="panelLedger" class="panel">
-        <div class="filter-row">
-          <div class="filters">
-            <button type="button" class="filter-btn active" data-filter="all">全部</button>
-            <button type="button" class="filter-btn" data-filter="income">收入</button>
-            <button type="button" class="filter-btn" data-filter="expense">支出</button>
+    <!-- ── Add ── -->
+    <section class="screen screen-add hidden" id="screenAdd">
+      <header class="add-top">
+        <button type="button" class="icon-btn" id="btnCloseAdd" aria-label="關閉">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+        <h1>新增交易</h1>
+        <button type="button" class="text-btn save-btn" id="btnSaveAdd">儲存</button>
+      </header>
+
+      <div class="add-scroll">
+        <div class="type-seg" role="tablist">
+          <button type="button" class="seg-btn active" data-type="expense">支出</button>
+          <button type="button" class="seg-btn" data-type="income">收入</button>
+          <button type="button" class="seg-btn" data-type="transfer" id="btnTransfer" title="即將推出">轉帳</button>
+        </div>
+
+        <div class="amount-block">
+          <div class="amount-label">金額</div>
+          <div class="amount-value" id="addAmountDisplay">NT$ 0</div>
+        </div>
+
+        <div class="cat-grid" id="addCatGrid"></div>
+
+        <div class="field-list">
+          <label class="field-row">
+            <span class="field-icon">📅</span>
+            <input type="date" id="addDate" />
+            <span class="field-chevron">▾</span>
+          </label>
+          <div class="field-row field-static">
+            <span class="field-icon">👛</span>
+            <span>現金</span>
+            <span class="field-chevron muted">▾</span>
           </div>
-          <span class="filter-count font-mono" id="txCount">0 筆</span>
+          <label class="field-row">
+            <span class="field-icon">📝</span>
+            <input type="text" id="addNote" placeholder="備註 (選填)" maxlength="80" />
+          </label>
         </div>
-
-        <div class="ledger-head">
-          <span>日期</span>
-          <span>說明</span>
-          <span>分類</span>
-          <span>金額</span>
-          <span></span>
-        </div>
-        <div class="ledger-body" id="ledgerBody"></div>
-      </section>
-
-      <section id="panelSummary" class="panel hidden">
-        <div class="card card-full">
-          <div class="card-title font-serif">收支比例</div>
-          <div class="ratio-bar" id="ratioBar"></div>
-          <div class="ratio-labels">
-            <span class="font-mono income" id="ratioIncome">NT$0</span>
-            <span class="font-mono expense" id="ratioExpense">NT$0</span>
-          </div>
-        </div>
-
-        <div class="card card-full">
-          <div class="card-title font-serif">分類明細</div>
-          <div class="cat-list" id="catList"></div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="card">
-            <div class="summary-label">儲蓄率</div>
-            <div class="stat-big font-serif" id="savingsRate">0%</div>
-            <div class="stat-note" id="savingsNote"></div>
-          </div>
-          <div class="card">
-            <div class="summary-label">交易筆數</div>
-            <div class="stat-big font-serif" id="txTotal">0</div>
-            <div class="stat-note" id="txBreakdown"></div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div class="modal-backdrop hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal">
-      <div class="font-serif modal-title" id="modalTitle">新增記帳</div>
-
-      <div class="type-toggle">
-        <button type="button" class="type-btn active expense" data-type="expense">－ 支出</button>
-        <button type="button" class="type-btn" data-type="income">＋ 收入</button>
       </div>
 
-      <label class="field">
-        <span class="field-label">日期</span>
-        <input type="date" id="formDate" />
-      </label>
-
-      <label class="field">
-        <span class="field-label">說明</span>
-        <input type="text" id="formDesc" placeholder="消費說明" />
-      </label>
-
-      <label class="field">
-        <span class="field-label">分類</span>
-        <select id="formCategory"></select>
-      </label>
-
-      <label class="field">
-        <span class="field-label">金額 (NTD)</span>
-        <input type="number" id="formAmount" placeholder="0" min="0" class="font-mono" />
-      </label>
-
-      <div class="modal-actions">
-        <button type="button" class="btn-cancel" id="btnCancel">取消</button>
-        <button type="button" class="btn-confirm" id="btnConfirm">確認新增</button>
+      <div class="keypad" id="keypad">
+        <button type="button" data-key="7">7</button>
+        <button type="button" data-key="8">8</button>
+        <button type="button" data-key="9">9</button>
+        <button type="button" data-key="4">4</button>
+        <button type="button" data-key="5">5</button>
+        <button type="button" data-key="6">6</button>
+        <button type="button" data-key="1">1</button>
+        <button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button>
+        <button type="button" data-key="0">0</button>
+        <button type="button" data-key=".">.</button>
+        <button type="button" class="key-ok" data-key="ok" aria-label="確認">✓</button>
       </div>
-    </div>
+    </section>
+
+    <!-- ── Report ── -->
+    <section class="screen screen-report hidden" id="screenReport">
+      <header class="report-top">
+        <button type="button" class="icon-btn" id="btnBackHome" aria-label="返回">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+        </button>
+        <h1 id="reportTitle">2026年7月報表</h1>
+        <button type="button" class="icon-btn" aria-label="分享">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 3v12" />
+            <path d="M8 7l4-4 4 4" />
+            <path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+          </svg>
+        </button>
+      </header>
+
+      <div class="report-scroll">
+        <div class="period-seg">
+          <button type="button" class="period-btn" data-period="week">週</button>
+          <button type="button" class="period-btn active" data-period="month">月</button>
+          <button type="button" class="period-btn" data-period="year">年</button>
+        </div>
+
+        <div class="report-summary">
+          <div class="report-card">
+            <div class="report-card-label">總支出</div>
+            <div class="report-card-value" id="reportExpense">NT$ 0</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-label">較上期</div>
+            <div class="report-card-value change" id="reportChange">—</div>
+          </div>
+        </div>
+
+        <div class="donut-wrap">
+          <div class="donut-chart" id="donutChart">
+            <svg viewBox="0 0 120 120" width="200" height="200" aria-hidden="true">
+              <circle class="donut-track" cx="60" cy="60" r="42" />
+              <g id="donutSlices"></g>
+            </svg>
+            <div class="donut-center">
+              <div class="donut-center-label">本月支出</div>
+              <div class="donut-center-value" id="donutCenter">NT$ 0</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+
+        <h2 class="report-section-title">分類明細</h2>
+        <div class="report-cat-list" id="reportCatList"></div>
+      </div>
+    </section>
+
+    <div class="toast hidden" id="toast"></div>
   </div>
 
   <script src="app.js"></script>
