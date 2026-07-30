@@ -216,7 +216,7 @@ function renderHome() {
 
   const listEl = document.getElementById("recentList");
   if (!list.length) {
-    listEl.innerHTML = `<div class="empty-hint">還沒有交易，點下方新增一筆</div>`;
+    listEl.innerHTML = `<div class="empty-hint">還沒有交易，點上方分類新增一筆</div>`;
     return;
   }
 
@@ -561,7 +561,6 @@ function renderReport() {
 
 /* ── Events ── */
 function bindEvents() {
-  document.getElementById("btnOpenAdd").addEventListener("click", () => openAdd());
   document.getElementById("btnOpenReport").addEventListener("click", () => setScreen("report"));
   document.getElementById("btnBackHome").addEventListener("click", () => setScreen("home"));
   document.getElementById("btnCloseAdd").addEventListener("click", () => setScreen("home"));
