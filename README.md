@@ -32,4 +32,4 @@ python -m http.server 3457
 
 - 無框架：原生 HTML + CSS + JS
 - 字型：DM Serif Display、Outfit、JetBrains Mono（Google Fonts）
-- 資料：預設示範交易可重置；使用者變更會寫入 `localStorage`（key：`expense-tracking-app-v1`）
+- 資料：預設為空帳本；新增後會寫入 `localStorage`（key：`expense-tracking-app-v2`）

@@ -16,25 +16,7 @@ const CAT_ICONS = {
   其他支出: "📎",
 };
 
-const SEED = [
-  { id: 1, date: "2025-07-01", desc: "七月薪資", category: "薪資", type: "income", amount: 65000 },
-  { id: 2, date: "2025-07-02", desc: "捷運月票", category: "交通", type: "expense", amount: 1200 },
-  { id: 3, date: "2025-07-03", desc: "超市採購", category: "餐飲", type: "expense", amount: 2340 },
-  { id: 4, date: "2025-07-05", desc: "Freelance 案件", category: "兼職", type: "income", amount: 12000 },
-  { id: 5, date: "2025-07-07", desc: "網飛訂閱", category: "娛樂", type: "expense", amount: 390 },
-  { id: 6, date: "2025-07-08", desc: "房租", category: "住房", type: "expense", amount: 18000 },
-  { id: 7, date: "2025-07-10", desc: "午餐便當 ×20", category: "餐飲", type: "expense", amount: 1800 },
-  { id: 8, date: "2025-07-12", desc: "股票股利", category: "投資", type: "income", amount: 4200 },
-  { id: 9, date: "2025-07-14", desc: "健身房會費", category: "醫療", type: "expense", amount: 1500 },
-  { id: 10, date: "2025-07-15", desc: "UNIQLO 購物", category: "購物", type: "expense", amount: 3890 },
-  { id: 11, date: "2025-07-18", desc: "線上課程", category: "教育", type: "expense", amount: 2500 },
-  { id: 12, date: "2025-07-20", desc: "朋友聚餐", category: "餐飲", type: "expense", amount: 1650 },
-  { id: 13, date: "2025-07-22", desc: "Uber 計程車", category: "交通", type: "expense", amount: 280 },
-  { id: 14, date: "2025-07-25", desc: "保險費", category: "其他支出", type: "expense", amount: 5400 },
-  { id: 15, date: "2025-07-28", desc: "接案尾款", category: "兼職", type: "income", amount: 8000 },
-];
-
-const STORAGE_KEY = "expense-tracking-app-v1";
+const STORAGE_KEY = "expense-tracking-app-v2";
 
 const state = {
   transactions: loadTransactions(),
@@ -44,16 +26,23 @@ const state = {
 };
 
 function loadTransactions() {
+  // Drop legacy demo data from the previous storage key.
+  try {
+    localStorage.removeItem("expense-tracking-app-v1");
+  } catch (_) {
+    /* ignore */
+  }
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (_) {
     /* ignore */
   }
-  return structuredClone(SEED);
+  return [];
 }
 
 function saveTransactions() {
