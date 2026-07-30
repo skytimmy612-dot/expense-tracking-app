@@ -573,9 +573,16 @@ body {
   background: #e5e7eb;
 }
 
+.keypad .key-back {
+  color: #6b7280;
+  font-size: 20px;
+}
+
 .keypad .key-ok {
   background: #111827;
   color: #fff;
+  grid-column: 1 / -1;
+  height: 48px;
 }
 
 /* ── Report ── */

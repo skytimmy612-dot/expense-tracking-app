@@ -290,6 +290,13 @@ function handleKey(key) {
     saveAdd();
     return;
   }
+  if (key === "back") {
+    if (s.length <= 1) state.form.amountStr = "0";
+    else state.form.amountStr = s.slice(0, -1);
+    if (state.form.amountStr === "" || state.form.amountStr === "-") state.form.amountStr = "0";
+    document.getElementById("addAmountDisplay").textContent = formatAmountInput(state.form.amountStr);
+    return;
+  }
   if (key === ".") {
     if (!s.includes(".")) state.form.amountStr = s === "" ? "0." : s + ".";
   } else if (/^\d$/.test(key)) {
