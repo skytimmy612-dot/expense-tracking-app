@@ -27,27 +27,31 @@
   --font: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Microsoft JhengHei", sans-serif;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 0.36s;
-  --cat-dining: #ffedd5;
-  --cat-dining-fg: #ea580c;
-  --cat-transit: #dbeafe;
-  --cat-transit-fg: #007aff;
-  --cat-shop: #ede9fe;
-  --cat-shop-fg: #7c3aed;
-  --cat-fun: #fce7f3;
-  --cat-fun-fg: #ff2d55;
-  --cat-health: #dcfce7;
-  --cat-health-fg: #34c759;
-  --cat-home: #fef3c7;
-  --cat-home-fg: #ff9500;
-  --cat-study: #e0f2fe;
-  --cat-study-fg: #32ade6;
-  --cat-more: #f3f4f6;
-  --cat-more-fg: #8e8e93;
-  --chart-1: #007aff;
-  --chart-2: #ff9500;
-  --chart-3: #34c759;
-  --chart-4: #ffcc00;
-  --chart-5: #ff2d55;
+  /* Global category tones (cycle in this order for new categories) */
+  --tone-amber-bg: #ffedd5;
+  --tone-amber-fg: #ea580c;
+  --tone-amber-solid: #f59e0b;
+  --tone-blue-bg: #dbeafe;
+  --tone-blue-fg: #007aff;
+  --tone-blue-solid: #007aff;
+  --tone-purple-bg: #ede9fe;
+  --tone-purple-fg: #7c3aed;
+  --tone-purple-solid: #7c3aed;
+  --tone-green-bg: #dcfce7;
+  --tone-green-fg: #16a34a;
+  --tone-green-solid: #34c759;
+  --tone-red-bg: #fee2e2;
+  --tone-red-fg: #ef4444;
+  --tone-red-solid: #ff3b30;
+  --tone-pink-bg: #fce7f3;
+  --tone-pink-fg: #ff2d55;
+  --tone-pink-solid: #ff2d55;
+  --tone-teal-bg: #ccfbf1;
+  --tone-teal-fg: #0d9488;
+  --tone-teal-solid: #14b8a6;
+  --tone-gray-bg: #f3f4f6;
+  --tone-gray-fg: #8e8e93;
+  --tone-gray-solid: #94a3b8;
 }
 
 html,
@@ -470,9 +474,9 @@ body {
 }
 
 .quick-cat-icon.more {
-  background: var(--cat-more);
+  background: var(--tone-gray-bg);
   border: none;
-  color: var(--cat-more-fg);
+  color: var(--tone-gray-fg);
   font-size: 22px;
   font-weight: 600;
 }

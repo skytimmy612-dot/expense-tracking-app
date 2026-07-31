@@ -19,23 +19,40 @@ function iconSvg(key) {
   return ICONS[key] || ICONS.more;
 }
 
+/** Global category color cycle — assign next tone when adding categories. */
+const CAT_TONES = ["amber", "blue", "purple", "green", "red", "pink", "teal", "gray"];
+
+function toneStyle(tone) {
+  const t = CAT_TONES.includes(tone) ? tone : "gray";
+  return {
+    tone: t,
+    bg: `var(--tone-${t}-bg)`,
+    fg: `var(--tone-${t}-fg)`,
+    chart: `var(--tone-${t}-solid)`,
+  };
+}
+
+function withTone(def) {
+  return { ...def, ...toneStyle(def.tone) };
+}
+
 const EXPENSE_CATS = [
-  { id: "餐飲", icon: "dining", bg: "var(--cat-dining)", fg: "var(--cat-dining-fg)", chart: "var(--chart-1)" },
-  { id: "交通", icon: "transit", bg: "var(--cat-transit)", fg: "var(--cat-transit-fg)", chart: "var(--chart-3)" },
-  { id: "購物", icon: "shop", bg: "var(--cat-shop)", fg: "var(--cat-shop-fg)", chart: "var(--chart-2)" },
-  { id: "娛樂", icon: "fun", bg: "var(--cat-fun)", fg: "var(--cat-fun-fg)", chart: "var(--chart-4)" },
-  { id: "醫療", icon: "health", bg: "var(--cat-health)", fg: "var(--cat-health-fg)", chart: "var(--chart-5)" },
-  { id: "居家", icon: "home", bg: "var(--cat-home)", fg: "var(--cat-home-fg)", chart: "#a78bfa" },
-  { id: "學習", icon: "study", bg: "var(--cat-study)", fg: "var(--cat-study-fg)", chart: "#38bdf8" },
-  { id: "其他", icon: "more", bg: "var(--cat-more)", fg: "var(--cat-more-fg)", chart: "#94a3b8", dashed: true },
-];
+  { id: "餐飲", icon: "dining", tone: "amber" },
+  { id: "交通", icon: "transit", tone: "blue" },
+  { id: "購物", icon: "shop", tone: "purple" },
+  { id: "居家", icon: "home", tone: "green" },
+  { id: "醫療", icon: "health", tone: "red" },
+  { id: "娛樂", icon: "fun", tone: "pink" },
+  { id: "學習", icon: "study", tone: "teal" },
+  { id: "其他", icon: "more", tone: "gray", dashed: true },
+].map(withTone);
 
 const INCOME_CATS = [
-  { id: "薪資", icon: "salary", bg: "var(--cat-health)", fg: "var(--cat-health-fg)", chart: "var(--chart-3)" },
-  { id: "兼職", icon: "freelance", bg: "var(--cat-transit)", fg: "var(--cat-transit-fg)", chart: "var(--chart-1)" },
-  { id: "投資", icon: "invest", bg: "var(--cat-dining)", fg: "var(--cat-dining-fg)", chart: "var(--chart-2)" },
-  { id: "其他收入", icon: "coin", bg: "var(--cat-home)", fg: "var(--cat-home-fg)", chart: "var(--chart-4)" },
-];
+  { id: "薪資", icon: "salary", tone: "green" },
+  { id: "兼職", icon: "freelance", tone: "blue" },
+  { id: "投資", icon: "invest", tone: "amber" },
+  { id: "其他收入", icon: "coin", tone: "purple" },
+].map(withTone);
 
 const QUICK_CATS = ["餐飲", "交通", "購物"];
 
