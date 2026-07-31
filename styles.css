@@ -408,7 +408,7 @@ body {
 }
 
 .quick-cat:active {
-  transform: scale(0.96);
+  transform: scale(0.92);
   box-shadow: none;
 }
 
@@ -452,7 +452,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
   margin: 0 0 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .section-head h2 {
@@ -460,6 +469,24 @@ body {
   font-size: 19px;
   font-weight: 700;
   color: var(--ink);
+}
+
+.section-head-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.section-head-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s var(--ease-out);
+}
+
+.section-head[aria-expanded="true"] .section-head-chevron {
+  transform: rotate(180deg);
 }
 
 .link-btn {
@@ -512,21 +539,29 @@ body {
 .tx-swipe-actions {
   position: absolute;
   inset: 0 0 0 auto;
-  width: 88px;
+  width: 176px;
   display: flex;
   align-items: stretch;
   justify-content: flex-end;
 }
 
+.tx-edit-btn,
 .tx-delete-btn {
   width: 88px;
   border: none;
-  background: #ef4444;
   color: #fff;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
+}
+
+.tx-edit-btn {
+  background: #8e8e93;
+}
+
+.tx-delete-btn {
+  background: #ef4444;
 }
 
 .tx-swipe-content {
@@ -545,7 +580,7 @@ body {
 }
 
 .tx-swipe.open .tx-swipe-content {
-  transform: translateX(-88px);
+  transform: translateX(-176px);
 }
 
 .tx-swipe-content.dragging {

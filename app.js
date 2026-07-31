@@ -43,6 +43,7 @@ const state = {
   screen: "home",
   transactions: loadTransactions(),
   showAllRecent: false,
+  editingId: null,
   viewDate: new Date(),
   reportPeriod: "month",
   form: {
@@ -254,7 +255,10 @@ function renderHome() {
     return b.date.localeCompare(a.date);
   });
   const list = state.showAllRecent ? sorted : sorted.slice(0, 5);
-  document.getElementById("btnViewAll").textContent = state.showAllRecent ? "收合" : "查看全部";
+  const viewAllBtn = document.getElementById("btnViewAll");
+  const viewAllLabel = document.getElementById("viewAllLabel");
+  viewAllLabel.textContent = state.showAllRecent ? "收合" : "查看全部";
+  viewAllBtn.setAttribute("aria-expanded", state.showAllRecent ? "true" : "false");
 
   const listEl = document.getElementById("recentList");
   if (!list.length) {
@@ -269,6 +273,7 @@ function renderHome() {
       return `
         <div class="tx-swipe" data-id="${tx.id}">
           <div class="tx-swipe-actions">
+            <button type="button" class="tx-edit-btn" data-edit="${tx.id}">編輯</button>
             <button type="button" class="tx-delete-btn" data-delete="${tx.id}">刪除</button>
           </div>
           <div class="tx-swipe-content">
@@ -286,7 +291,7 @@ function renderHome() {
   bindSwipeRows(listEl);
 }
 
-const SWIPE_WIDTH = 88;
+const SWIPE_WIDTH = 176;
 let swipeState = null;
 
 function closeAllSwipes(except) {
@@ -316,7 +321,7 @@ function bindSwipeRows(listEl) {
   const onStart = (e) => {
     const content = e.target.closest(".tx-swipe-content");
     if (!content || !listEl.contains(content)) return;
-    if (e.target.closest("[data-delete]")) return;
+    if (e.target.closest("[data-delete], [data-edit]")) return;
     const row = content.closest(".tx-swipe");
     closeAllSwipes(row);
     const p = getPoint(e);
@@ -387,13 +392,34 @@ function deleteTransaction(id) {
 }
 
 /* ── Add ── */
+function amountToInputStr(n) {
+  const num = Number(n) || 0;
+  if (Number.isInteger(num)) return String(num);
+  return String(num);
+}
+
 function openAdd(presetCategory) {
+  state.editingId = null;
   state.form = {
     type: "expense",
     amountStr: "0",
     category: presetCategory && presetCategory !== "更多" ? presetCategory : "餐飲",
     date: todayStr(),
     note: "",
+  };
+  setScreen("add");
+}
+
+function openEdit(id) {
+  const tx = state.transactions.find((t) => t.id === id);
+  if (!tx) return;
+  state.editingId = id;
+  state.form = {
+    type: tx.type === "income" ? "income" : "expense",
+    amountStr: amountToInputStr(tx.amount),
+    category: tx.category,
+    date: tx.date,
+    note: tx.note || "",
   };
   setScreen("add");
 }
@@ -409,6 +435,8 @@ function formatAmountInput(str) {
 }
 
 function renderAdd() {
+  document.getElementById("addScreenTitle").textContent = state.editingId ? "編輯交易" : "新增交易";
+
   document.querySelectorAll(".seg-btn").forEach((btn) => {
     const t = btn.dataset.type;
     btn.classList.toggle("active", t === state.form.type);
@@ -476,6 +504,29 @@ function saveAdd() {
 
   const note = document.getElementById("addNote").value.trim();
   const date = document.getElementById("addDate").value || todayStr();
+
+  if (state.editingId) {
+    const idx = state.transactions.findIndex((t) => t.id === state.editingId);
+    if (idx >= 0) {
+      const prev = state.transactions[idx];
+      state.transactions[idx] = {
+        ...prev,
+        date,
+        desc: state.form.category,
+        category: state.form.category,
+        type: state.form.type,
+        amount,
+        account: prev.account || "現金",
+        note: note || undefined,
+      };
+    }
+    state.editingId = null;
+    saveTransactions();
+    state.showAllRecent = false;
+    setScreen("home");
+    showToast("已更新");
+    return;
+  }
 
   state.transactions.push({
     id: Date.now(),
@@ -605,7 +656,10 @@ function renderReport() {
 function bindEvents() {
   document.getElementById("btnOpenReport").addEventListener("click", () => setScreen("report"));
   document.getElementById("btnBackHome").addEventListener("click", () => setScreen("home"));
-  document.getElementById("btnCloseAdd").addEventListener("click", () => setScreen("home"));
+  document.getElementById("btnCloseAdd").addEventListener("click", () => {
+    state.editingId = null;
+    setScreen("home");
+  });
   document.getElementById("btnSaveAdd").addEventListener("click", saveAdd);
 
   document.getElementById("btnViewAll").addEventListener("click", () => {
@@ -614,10 +668,16 @@ function bindEvents() {
   });
 
   document.getElementById("recentList").addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-delete]");
-    if (!btn) return;
+    const editBtn = e.target.closest("[data-edit]");
+    if (editBtn) {
+      e.preventDefault();
+      openEdit(Number(editBtn.dataset.edit));
+      return;
+    }
+    const delBtn = e.target.closest("[data-delete]");
+    if (!delBtn) return;
     e.preventDefault();
-    deleteTransaction(Number(btn.dataset.delete));
+    deleteTransaction(Number(delBtn.dataset.delete));
   });
 
   document.getElementById("quickCats").addEventListener("click", (e) => {
