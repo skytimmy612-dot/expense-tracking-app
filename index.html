@@ -12,169 +12,211 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app">
-    <!-- ── Home ── -->
-    <section class="screen screen-home" id="screenHome">
-      <header class="home-top">
-        <h1 class="home-month" id="homeMonthTitle">2026年7月</h1>
-      </header>
+  <div class="phone" aria-hidden="false">
+    <div class="phone-side phone-side-left" aria-hidden="true">
+      <span class="side-btn mute"></span>
+      <span class="side-btn vol-up"></span>
+      <span class="side-btn vol-down"></span>
+    </div>
+    <div class="phone-side phone-side-right" aria-hidden="true">
+      <span class="side-btn power"></span>
+    </div>
 
-      <div class="home-scroll">
-        <button type="button" class="balance-card" id="btnOpenReport">
-          <div class="balance-main-card">
-            <div class="balance-label">本月結餘</div>
-            <div class="balance-amount" id="homeBalance">NT$ 0</div>
+    <div class="phone-bezel">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <div class="status-time" id="statusTime">9:41</div>
+          <div class="dynamic-island" aria-hidden="true">
+            <span class="island-camera"></span>
           </div>
-          <div class="balance-row">
-            <div class="balance-side">
-              <span class="side-icon income-icon">↓</span>
-              <div>
-                <div class="side-label">收入</div>
-                <div class="side-value income" id="homeIncome">NT$ 0</div>
+          <div class="status-trailing">
+            <span class="status-signal" aria-hidden="true">
+              <i></i><i></i><i></i><i></i>
+            </span>
+            <span class="status-wifi" aria-hidden="true">
+              <svg viewBox="0 0 16 12" width="15" height="11"><path fill="currentColor" d="M8 9.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Zm0-3.3c1.7 0 3.2.6 4.4 1.7l-1.1 1.1A4.7 4.7 0 0 0 8 7.3c-1.2 0-2.3.4-3.2 1.2L3.7 7.4A6.3 6.3 0 0 1 8 5.9Zm0-3.4c2.6 0 5 .9 6.9 2.5L13.8 6A8.9 8.9 0 0 0 8 3.8 8.9 8.9 0 0 0 2.2 6L1.1 5C3 3.4 5.4 2.5 8 2.5Z"/></svg>
+            </span>
+            <span class="status-battery" aria-hidden="true">
+              <span class="battery-body"><span class="battery-level"></span></span>
+              <span class="battery-cap"></span>
+            </span>
+          </div>
+        </div>
+
+        <div class="app" id="appRoot">
+          <!-- ── Home ── -->
+          <section class="screen screen-home is-active" id="screenHome">
+            <header class="home-top">
+              <h1 class="home-month" id="homeMonthTitle">2026年7月</h1>
+            </header>
+
+            <div class="home-scroll">
+              <button type="button" class="balance-card pressable" id="btnOpenReport">
+                <div class="balance-main-card">
+                  <div class="balance-label">本月結餘</div>
+                  <div class="balance-amount" id="homeBalance">NT$ 0</div>
+                </div>
+                <div class="balance-row">
+                  <div class="balance-side">
+                    <span class="side-icon income-icon">↓</span>
+                    <div>
+                      <div class="side-label">收入</div>
+                      <div class="side-value income" id="homeIncome">NT$ 0</div>
+                    </div>
+                  </div>
+                  <div class="balance-side">
+                    <span class="side-icon expense-icon">↑</span>
+                    <div>
+                      <div class="side-label">支出</div>
+                      <div class="side-value expense" id="homeExpense">NT$ 0</div>
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              <section class="home-panel panel-cats glass-panel">
+                <div class="panel-title">快速記帳</div>
+                <div class="quick-cats" id="quickCats"></div>
+              </section>
+
+              <section class="home-panel panel-tx glass-panel">
+                <div class="section-head">
+                  <h2>最近交易</h2>
+                  <button type="button" class="link-btn" id="btnViewAll">查看全部</button>
+                </div>
+                <div class="tx-list" id="recentList"></div>
+              </section>
+            </div>
+          </section>
+
+          <!-- ── Add ── -->
+          <section class="screen screen-add" id="screenAdd" aria-hidden="true">
+            <header class="add-top">
+              <button type="button" class="icon-btn glass-btn pressable" id="btnCloseAdd" aria-label="關閉">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+              <h1>新增交易</h1>
+              <button type="button" class="text-btn save-btn" id="btnSaveAdd">儲存</button>
+            </header>
+
+            <div class="add-scroll">
+              <div class="type-seg" role="tablist">
+                <button type="button" class="seg-btn active" data-type="expense">支出</button>
+                <button type="button" class="seg-btn" data-type="income">收入</button>
+                <button type="button" class="seg-btn" data-type="transfer" id="btnTransfer" title="即將推出">轉帳</button>
+              </div>
+
+              <div class="amount-block">
+                <div class="amount-label">金額</div>
+                <div class="amount-value" id="addAmountDisplay">NT$ 0</div>
+              </div>
+
+              <div class="cat-grid" id="addCatGrid"></div>
+
+              <div class="field-list glass-panel">
+                <label class="field-row">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+                  </span>
+                  <input type="date" id="addDate" />
+                  <span class="field-chevron">›</span>
+                </label>
+                <div class="field-row field-static">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11H6.2L5 8z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>
+                  </span>
+                  <span>現金</span>
+                  <span class="field-chevron muted">›</span>
+                </div>
+                <label class="field-row">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19l3.5-1L19 7.5 16.5 5 5 16.5V19z"/><path d="M14.5 7l2.5 2.5"/></svg>
+                  </span>
+                  <input type="text" id="addNote" placeholder="備註 (選填)" maxlength="80" />
+                </label>
               </div>
             </div>
-            <div class="balance-side">
-              <span class="side-icon expense-icon">↑</span>
-              <div>
-                <div class="side-label">支出</div>
-                <div class="side-value expense" id="homeExpense">NT$ 0</div>
+
+            <div class="keypad" id="keypad">
+              <button type="button" class="pressable" data-key="7">7</button>
+              <button type="button" class="pressable" data-key="8">8</button>
+              <button type="button" class="pressable" data-key="9">9</button>
+              <button type="button" class="pressable" data-key="4">4</button>
+              <button type="button" class="pressable" data-key="5">5</button>
+              <button type="button" class="pressable" data-key="6">6</button>
+              <button type="button" class="pressable" data-key="1">1</button>
+              <button type="button" class="pressable" data-key="2">2</button>
+              <button type="button" class="pressable" data-key="3">3</button>
+              <button type="button" class="pressable" data-key="0">0</button>
+              <button type="button" class="pressable" data-key=".">.</button>
+              <button type="button" class="key-back pressable" data-key="back" aria-label="倒退">⌫</button>
+              <button type="button" class="key-ok pressable" data-key="ok" aria-label="確認">✓</button>
+            </div>
+          </section>
+
+          <!-- ── Report ── -->
+          <section class="screen screen-report" id="screenReport" aria-hidden="true">
+            <header class="report-top">
+              <button type="button" class="icon-btn glass-btn pressable" id="btnBackHome" aria-label="返回">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 6l-6 6 6 6" />
+                </svg>
+              </button>
+              <h1 id="reportTitle">2026年7月報表</h1>
+              <button type="button" class="icon-btn glass-btn pressable" aria-label="分享">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v12" />
+                  <path d="M8 7l4-4 4 4" />
+                  <path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+                </svg>
+              </button>
+            </header>
+
+            <div class="report-scroll">
+              <div class="period-seg">
+                <button type="button" class="period-btn" data-period="week">週</button>
+                <button type="button" class="period-btn active" data-period="month">月</button>
+                <button type="button" class="period-btn" data-period="year">年</button>
               </div>
+
+              <div class="report-summary">
+                <div class="report-card glass-panel">
+                  <div class="report-card-label">總支出</div>
+                  <div class="report-card-value" id="reportExpense">NT$ 0</div>
+                </div>
+                <div class="report-card glass-panel">
+                  <div class="report-card-label">較上期</div>
+                  <div class="report-card-value change" id="reportChange">—</div>
+                </div>
+              </div>
+
+              <div class="donut-wrap glass-panel">
+                <div class="donut-chart" id="donutChart">
+                  <svg viewBox="0 0 120 120" width="200" height="200" aria-hidden="true">
+                    <circle class="donut-track" cx="60" cy="60" r="42" />
+                    <g id="donutSlices"></g>
+                  </svg>
+                  <div class="donut-center">
+                    <div class="donut-center-label">本月支出</div>
+                    <div class="donut-center-value" id="donutCenter">NT$ 0</div>
+                  </div>
+                </div>
+                <div class="donut-legend" id="donutLegend"></div>
+              </div>
+
+              <h2 class="report-section-title">分類明細</h2>
+              <div class="report-cat-list glass-panel" id="reportCatList"></div>
             </div>
-          </div>
-        </button>
+          </section>
 
-        <section class="home-panel panel-cats">
-          <div class="panel-title">快速記帳</div>
-          <div class="quick-cats" id="quickCats"></div>
-        </section>
+          <div class="toast hidden" id="toast"></div>
+        </div>
 
-        <section class="home-panel panel-tx">
-          <div class="section-head">
-            <h2>最近交易</h2>
-            <button type="button" class="link-btn" id="btnViewAll">查看全部</button>
-          </div>
-          <div class="tx-list" id="recentList"></div>
-        </section>
+        <div class="home-indicator" aria-hidden="true"></div>
       </div>
-    </section>
-
-    <!-- ── Add ── -->
-    <section class="screen screen-add hidden" id="screenAdd">
-      <header class="add-top">
-        <button type="button" class="icon-btn" id="btnCloseAdd" aria-label="關閉">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        </button>
-        <h1>新增交易</h1>
-        <button type="button" class="text-btn save-btn" id="btnSaveAdd">儲存</button>
-      </header>
-
-      <div class="add-scroll">
-        <div class="type-seg" role="tablist">
-          <button type="button" class="seg-btn active" data-type="expense">支出</button>
-          <button type="button" class="seg-btn" data-type="income">收入</button>
-          <button type="button" class="seg-btn" data-type="transfer" id="btnTransfer" title="即將推出">轉帳</button>
-        </div>
-
-        <div class="amount-block">
-          <div class="amount-label">金額</div>
-          <div class="amount-value" id="addAmountDisplay">NT$ 0</div>
-        </div>
-
-        <div class="cat-grid" id="addCatGrid"></div>
-
-        <div class="field-list">
-          <label class="field-row">
-            <span class="field-icon">📅</span>
-            <input type="date" id="addDate" />
-            <span class="field-chevron">▾</span>
-          </label>
-          <div class="field-row field-static">
-            <span class="field-icon">👛</span>
-            <span>現金</span>
-            <span class="field-chevron muted">▾</span>
-          </div>
-          <label class="field-row">
-            <span class="field-icon">📝</span>
-            <input type="text" id="addNote" placeholder="備註 (選填)" maxlength="80" />
-          </label>
-        </div>
-      </div>
-
-      <div class="keypad" id="keypad">
-        <button type="button" data-key="7">7</button>
-        <button type="button" data-key="8">8</button>
-        <button type="button" data-key="9">9</button>
-        <button type="button" data-key="4">4</button>
-        <button type="button" data-key="5">5</button>
-        <button type="button" data-key="6">6</button>
-        <button type="button" data-key="1">1</button>
-        <button type="button" data-key="2">2</button>
-        <button type="button" data-key="3">3</button>
-        <button type="button" data-key="0">0</button>
-        <button type="button" data-key=".">.</button>
-        <button type="button" class="key-back" data-key="back" aria-label="倒退">⌫</button>
-        <button type="button" class="key-ok" data-key="ok" aria-label="確認">✓</button>
-      </div>
-    </section>
-
-    <!-- ── Report ── -->
-    <section class="screen screen-report hidden" id="screenReport">
-      <header class="report-top">
-        <button type="button" class="icon-btn" id="btnBackHome" aria-label="返回">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M15 6l-6 6 6 6" />
-          </svg>
-        </button>
-        <h1 id="reportTitle">2026年7月報表</h1>
-        <button type="button" class="icon-btn" aria-label="分享">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M12 3v12" />
-            <path d="M8 7l4-4 4 4" />
-            <path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
-          </svg>
-        </button>
-      </header>
-
-      <div class="report-scroll">
-        <div class="period-seg">
-          <button type="button" class="period-btn" data-period="week">週</button>
-          <button type="button" class="period-btn active" data-period="month">月</button>
-          <button type="button" class="period-btn" data-period="year">年</button>
-        </div>
-
-        <div class="report-summary">
-          <div class="report-card">
-            <div class="report-card-label">總支出</div>
-            <div class="report-card-value" id="reportExpense">NT$ 0</div>
-          </div>
-          <div class="report-card">
-            <div class="report-card-label">較上期</div>
-            <div class="report-card-value change" id="reportChange">—</div>
-          </div>
-        </div>
-
-        <div class="donut-wrap">
-          <div class="donut-chart" id="donutChart">
-            <svg viewBox="0 0 120 120" width="200" height="200" aria-hidden="true">
-              <circle class="donut-track" cx="60" cy="60" r="42" />
-              <g id="donutSlices"></g>
-            </svg>
-            <div class="donut-center">
-              <div class="donut-center-label">本月支出</div>
-              <div class="donut-center-value" id="donutCenter">NT$ 0</div>
-            </div>
-          </div>
-          <div class="donut-legend" id="donutLegend"></div>
-        </div>
-
-        <h2 class="report-section-title">分類明細</h2>
-        <div class="report-cat-list" id="reportCatList"></div>
-      </div>
-    </section>
-
-    <div class="toast hidden" id="toast"></div>
+    </div>
   </div>
 
   <script src="app.js"></script>
