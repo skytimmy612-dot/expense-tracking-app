@@ -170,18 +170,97 @@ function showToast(msg) {
   const el = document.getElementById("toast");
   el.textContent = msg;
   el.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    el.classList.add("is-visible");
+  });
   clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => el.classList.add("hidden"), 1800);
+  showToast._t = setTimeout(() => {
+    el.classList.remove("is-visible");
+    setTimeout(() => el.classList.add("hidden"), 280);
+  }, 1800);
 }
 
+const SCREEN_IDS = {
+  home: "screenHome",
+  add: "screenAdd",
+  report: "screenReport",
+};
+
+const SCREEN_FORWARD = {
+  "home->add": true,
+  "home->report": true,
+  "report->add": true,
+};
+
 function setScreen(name) {
+  const prev = state.screen;
+  if (prev === name) {
+    if (name === "home") renderHome();
+    if (name === "add") renderAdd();
+    if (name === "report") renderReport();
+    return;
+  }
+
+  const forward = SCREEN_FORWARD[`${prev}->${name}`] === true;
+  const leaving = document.getElementById(SCREEN_IDS[prev]);
+  const entering = document.getElementById(SCREEN_IDS[name]);
+
   state.screen = name;
-  document.getElementById("screenHome").classList.toggle("hidden", name !== "home");
-  document.getElementById("screenAdd").classList.toggle("hidden", name !== "add");
-  document.getElementById("screenReport").classList.toggle("hidden", name !== "report");
+
+  Object.entries(SCREEN_IDS).forEach(([key, id]) => {
+    if (key === prev || key === name) return;
+    const el = document.getElementById(id);
+    el.classList.remove("is-active", "is-entering-forward", "is-entering-back", "is-leaving-forward", "is-leaving-back");
+    el.setAttribute("aria-hidden", "true");
+  });
+
+  if (leaving) {
+    leaving.classList.remove("is-active", "is-entering-forward", "is-entering-back");
+    leaving.classList.add(forward ? "is-leaving-forward" : "is-leaving-back");
+    leaving.setAttribute("aria-hidden", "true");
+  }
+
+  if (entering) {
+    entering.classList.remove("is-leaving-forward", "is-leaving-back", "is-active");
+    entering.classList.add(forward ? "is-entering-forward" : "is-entering-back");
+    entering.setAttribute("aria-hidden", "false");
+    // Force reflow so the enter transform is applied before activating.
+    void entering.offsetWidth;
+    entering.classList.add("is-active");
+    entering.classList.remove("is-entering-forward", "is-entering-back");
+  }
+
+  clearTimeout(setScreen._cleanup);
+  setScreen._cleanup = setTimeout(() => {
+    if (leaving) {
+      leaving.classList.remove("is-leaving-forward", "is-leaving-back");
+    }
+  }, 400);
+
   if (name === "home") renderHome();
   if (name === "add") renderAdd();
   if (name === "report") renderReport();
+}
+
+function updateStatusTime() {
+  const el = document.getElementById("statusTime");
+  if (!el) return;
+  const now = new Date();
+  el.textContent = now.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+function pulseAmount() {
+  const el = document.getElementById("addAmountDisplay");
+  if (!el) return;
+  el.classList.remove("pulse");
+  void el.offsetWidth;
+  el.classList.add("pulse");
+  clearTimeout(pulseAmount._t);
+  pulseAmount._t = setTimeout(() => el.classList.remove("pulse"), 180);
 }
 
 function relativeTime(dateStr) {
@@ -430,6 +509,7 @@ function handleKey(key) {
     else state.form.amountStr = s.slice(0, -1);
     if (state.form.amountStr === "" || state.form.amountStr === "-") state.form.amountStr = "0";
     document.getElementById("addAmountDisplay").textContent = formatAmountInput(state.form.amountStr);
+    pulseAmount();
     return;
   }
   if (key === ".") {
@@ -447,6 +527,7 @@ function handleKey(key) {
     state.form.amountStr = s;
   }
   document.getElementById("addAmountDisplay").textContent = formatAmountInput(state.form.amountStr);
+  pulseAmount();
 }
 
 function saveAdd() {
@@ -587,6 +668,33 @@ function renderReport() {
     .join("");
 }
 
+function bindPressFeedback(root = document) {
+  const mark = (el, on) => {
+    if (!el) return;
+    el.classList.toggle("is-pressed", on);
+  };
+
+  root.addEventListener(
+    "pointerdown",
+    (e) => {
+      const btn = e.target.closest(".pressable, .quick-cat, .cat-pick, .seg-btn, .period-btn, .keypad button");
+      if (!btn || btn.disabled) return;
+      mark(btn, true);
+    },
+    { passive: true }
+  );
+
+  const clear = (e) => {
+    const btn = e.target.closest?.(".pressable, .quick-cat, .cat-pick, .seg-btn, .period-btn, .keypad button");
+    if (btn) mark(btn, false);
+    document.querySelectorAll(".is-pressed").forEach((el) => el.classList.remove("is-pressed"));
+  };
+
+  root.addEventListener("pointerup", clear, { passive: true });
+  root.addEventListener("pointercancel", clear, { passive: true });
+  root.addEventListener("pointerleave", clear, { passive: true });
+}
+
 /* ── Events ── */
 function bindEvents() {
   document.getElementById("btnOpenReport").addEventListener("click", () => setScreen("report"));
@@ -649,6 +757,7 @@ function bindEvents() {
   document.getElementById("addAmountDisplay").addEventListener("click", () => {
     state.form.amountStr = "0";
     document.getElementById("addAmountDisplay").textContent = formatAmountInput("0");
+    pulseAmount();
   });
 
   document.querySelectorAll(".period-btn").forEach((btn) => {
@@ -657,7 +766,13 @@ function bindEvents() {
       renderReport();
     });
   });
+
+  bindPressFeedback();
 }
 
+updateStatusTime();
+setInterval(updateStatusTime, 30_000);
 bindEvents();
-setScreen("home");
+document.getElementById("screenHome").classList.add("is-active");
+document.getElementById("screenHome").setAttribute("aria-hidden", "false");
+renderHome();
