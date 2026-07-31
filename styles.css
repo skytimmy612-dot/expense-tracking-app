@@ -59,6 +59,18 @@ input {
   font: inherit;
 }
 
+button,
+a,
+.seg-btn,
+.cat-pick,
+.quick-cat,
+.keypad button,
+.icon-btn,
+.text-btn,
+.link-btn {
+  touch-action: manipulation;
+}
+
 .hidden {
   display: none !important;
 }
