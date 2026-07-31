@@ -1,21 +1,40 @@
 const STORAGE_KEY = "expense-tracking-app-v3";
 
+const ICONS = {
+  dining: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v8M6 3v5a2 2 0 0 0 4 0V3M8 11v10M16 3c0 4 2 5 2 8v10M16 3v6c0 2-2 2-2 2"/></svg>`,
+  transit: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M4 10h16M8 16v2M16 16v2M7 13h.01M17 13h.01"/></svg>`,
+  shop: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>`,
+  fun: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>`,
+  health: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>`,
+  home: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>`,
+  study: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+  more: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg>`,
+  salary: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="12" rx="2"/><path d="M9 7V6a3 3 0 0 1 6 0v1M9 12h6"/></svg>`,
+  freelance: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`,
+  invest: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg>`,
+  coin: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7v10M9.5 9.5c.5-1 1.5-1.5 2.5-1.5s2 .7 2 2-1 2-2.5 2.5-2.5.8-2.5 2.5c0 1.2 1 2 2.5 2s2-.5 2.5-1.5"/></svg>`,
+};
+
+function iconSvg(key) {
+  return ICONS[key] || ICONS.more;
+}
+
 const EXPENSE_CATS = [
-  { id: "餐飲", icon: "🍴", bg: "var(--cat-dining)", fg: "var(--cat-dining-fg)", chart: "var(--chart-1)" },
-  { id: "交通", icon: "🚌", bg: "var(--cat-transit)", fg: "var(--cat-transit-fg)", chart: "var(--chart-3)" },
-  { id: "購物", icon: "🛍️", bg: "var(--cat-shop)", fg: "var(--cat-shop-fg)", chart: "var(--chart-2)" },
-  { id: "娛樂", icon: "🎬", bg: "var(--cat-fun)", fg: "var(--cat-fun-fg)", chart: "var(--chart-4)" },
-  { id: "醫療", icon: "❤️", bg: "var(--cat-health)", fg: "var(--cat-health-fg)", chart: "var(--chart-5)" },
-  { id: "居家", icon: "🏠", bg: "var(--cat-home)", fg: "var(--cat-home-fg)", chart: "#a78bfa" },
-  { id: "學習", icon: "📚", bg: "var(--cat-study)", fg: "var(--cat-study-fg)", chart: "#38bdf8" },
-  { id: "其他", icon: "＋", bg: "var(--cat-more)", fg: "var(--cat-more-fg)", chart: "#94a3b8", dashed: true },
+  { id: "餐飲", icon: "dining", bg: "var(--cat-dining)", fg: "var(--cat-dining-fg)", chart: "var(--chart-1)" },
+  { id: "交通", icon: "transit", bg: "var(--cat-transit)", fg: "var(--cat-transit-fg)", chart: "var(--chart-3)" },
+  { id: "購物", icon: "shop", bg: "var(--cat-shop)", fg: "var(--cat-shop-fg)", chart: "var(--chart-2)" },
+  { id: "娛樂", icon: "fun", bg: "var(--cat-fun)", fg: "var(--cat-fun-fg)", chart: "var(--chart-4)" },
+  { id: "醫療", icon: "health", bg: "var(--cat-health)", fg: "var(--cat-health-fg)", chart: "var(--chart-5)" },
+  { id: "居家", icon: "home", bg: "var(--cat-home)", fg: "var(--cat-home-fg)", chart: "#a78bfa" },
+  { id: "學習", icon: "study", bg: "var(--cat-study)", fg: "var(--cat-study-fg)", chart: "#38bdf8" },
+  { id: "其他", icon: "more", bg: "var(--cat-more)", fg: "var(--cat-more-fg)", chart: "#94a3b8", dashed: true },
 ];
 
 const INCOME_CATS = [
-  { id: "薪資", icon: "💼", bg: "var(--cat-health)", fg: "var(--cat-health-fg)", chart: "var(--chart-3)" },
-  { id: "兼職", icon: "💻", bg: "var(--cat-transit)", fg: "var(--cat-transit-fg)", chart: "var(--chart-1)" },
-  { id: "投資", icon: "📈", bg: "var(--cat-dining)", fg: "var(--cat-dining-fg)", chart: "var(--chart-2)" },
-  { id: "其他收入", icon: "💰", bg: "var(--cat-home)", fg: "var(--cat-home-fg)", chart: "var(--chart-4)" },
+  { id: "薪資", icon: "salary", bg: "var(--cat-health)", fg: "var(--cat-health-fg)", chart: "var(--chart-3)" },
+  { id: "兼職", icon: "freelance", bg: "var(--cat-transit)", fg: "var(--cat-transit-fg)", chart: "var(--chart-1)" },
+  { id: "投資", icon: "invest", bg: "var(--cat-dining)", fg: "var(--cat-dining-fg)", chart: "var(--chart-2)" },
+  { id: "其他收入", icon: "coin", bg: "var(--cat-home)", fg: "var(--cat-home-fg)", chart: "var(--chart-4)" },
 ];
 
 const QUICK_CATS = ["餐飲", "交通", "購物"];
@@ -69,8 +88,17 @@ function fmt(n) {
 }
 
 function catMeta(name, type) {
-  const list = type === "income" ? INCOME_CATS : EXPENSE_CATS;
-  return list.find((c) => c.id === name) || EXPENSE_CATS[EXPENSE_CATS.length - 1];
+  if (type === "income") {
+    return INCOME_CATS.find((c) => c.id === name) || INCOME_CATS[0];
+  }
+  if (type === "expense") {
+    return EXPENSE_CATS.find((c) => c.id === name) || EXPENSE_CATS[EXPENSE_CATS.length - 1];
+  }
+  return (
+    EXPENSE_CATS.find((c) => c.id === name) ||
+    INCOME_CATS.find((c) => c.id === name) ||
+    EXPENSE_CATS[EXPENSE_CATS.length - 1]
+  );
 }
 
 function monthBounds(d) {
@@ -197,13 +225,13 @@ function renderHome() {
       const meta = catMeta(name, "expense");
       return `
         <button type="button" class="quick-cat" data-quick="${name}">
-          <span class="quick-cat-icon" style="background:${meta.bg};color:${meta.fg}">${meta.icon}</span>
+          <span class="quick-cat-icon" style="background:${meta.bg};color:${meta.fg}">${iconSvg(meta.icon)}</span>
           <span class="quick-cat-label">${name}</span>
         </button>`;
     }).join("") +
     `
       <button type="button" class="quick-cat" data-quick="更多">
-        <span class="quick-cat-icon more">＋</span>
+        <span class="quick-cat-icon more">${iconSvg("more")}</span>
         <span class="quick-cat-label">更多</span>
       </button>`;
 
@@ -230,7 +258,7 @@ function renderHome() {
             <button type="button" class="tx-delete-btn" data-delete="${tx.id}">刪除</button>
           </div>
           <div class="tx-swipe-content">
-            <div class="tx-icon" style="background:${meta.bg}">${meta.icon === "＋" ? "📎" : meta.icon}</div>
+            <div class="tx-icon" style="background:${meta.bg};color:${meta.fg}">${iconSvg(meta.icon)}</div>
             <div>
               <div class="tx-title">${escapeHtml(txTitle(tx))}</div>
               <div class="tx-time">${relativeTime(tx.date)}</div>
@@ -384,7 +412,7 @@ function renderAdd() {
       const dashed = c.dashed ? "dashed" : "";
       return `
         <button type="button" class="cat-pick ${selected}" data-cat="${c.id}">
-          <span class="cat-pick-icon ${dashed}" style="background:${c.dashed ? "transparent" : c.bg};color:${c.fg}">${c.icon}</span>
+          <span class="cat-pick-icon ${dashed}" style="background:${c.dashed ? "transparent" : c.bg};color:${c.fg}">${iconSvg(c.icon)}</span>
           <span class="cat-pick-label">${c.id}</span>
         </button>`;
     })

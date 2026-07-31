@@ -303,6 +303,19 @@ body {
   font-size: 24px;
 }
 
+.quick-cat-icon .cat-svg,
+.cat-pick-icon .cat-svg,
+.tx-icon .cat-svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.tx-icon .cat-svg {
+  width: 22px;
+  height: 22px;
+}
+
 .quick-cat-icon.more {
   background: var(--card);
   border: 1.5px dashed #d1d5db;
