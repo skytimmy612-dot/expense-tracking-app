@@ -53,16 +53,50 @@
         </section>
 
         <section class="home-panel panel-tx">
-          <button type="button" class="section-head" id="btnViewAll" aria-expanded="false">
+          <div class="section-head section-head-static">
             <h2>最近交易</h2>
-            <span class="section-head-action">
-              <span class="section-head-label" id="viewAllLabel">查看全部</span>
-              <svg class="section-head-chevron" id="viewAllChevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </span>
-          </button>
+          </div>
           <div class="tx-list" id="recentList"></div>
+          <button type="button" class="tx-list-cta" id="btnOpenMonthList">查看全部本月交易</button>
+        </section>
+      </div>
+    </section>
+
+    <!-- ── Month list ── -->
+    <section class="screen screen-month hidden" id="screenMonth">
+      <header class="month-top">
+        <button type="button" class="icon-btn" id="btnBackFromMonth" aria-label="返回">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+        </button>
+        <h1>本月交易</h1>
+        <span class="month-top-spacer"></span>
+      </header>
+
+      <div class="month-scroll">
+        <p class="month-nav-hint">點左右箭頭切換月份，點月份文字開啟選單</p>
+        <div class="month-nav-card">
+          <button type="button" class="month-nav-arrow" id="btnMonthPrev" aria-label="上個月">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" /></svg>
+          </button>
+          <button type="button" class="month-nav-label" id="btnMonthPicker">
+            <span id="monthListTitle">2026年7月</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          </button>
+          <button type="button" class="month-nav-arrow" id="btnMonthNext" aria-label="下個月">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+          <input type="month" class="month-nav-input" id="monthPickerInput" aria-label="選擇月份" />
+        </div>
+
+        <div class="month-balance-card">
+          <div class="balance-label">本月結餘</div>
+          <div class="balance-amount" id="monthListBalance">NT$ 0</div>
+        </div>
+
+        <section class="home-panel panel-tx month-tx-panel">
+          <div class="tx-list" id="monthTxList"></div>
         </section>
       </div>
     </section>

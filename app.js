@@ -42,7 +42,6 @@ const QUICK_CATS = ["餐飲", "交通", "購物"];
 const state = {
   screen: "home",
   transactions: loadTransactions(),
-  showAllRecent: false,
   editingId: null,
   viewDate: new Date(),
   reportPeriod: "month",
@@ -155,16 +154,24 @@ function inRange(tx, start, end) {
   return t >= start && t <= end;
 }
 
-function monthTxs() {
-  const { start, end } = monthBounds(state.viewDate);
+function monthTxsFor(d) {
+  const { start, end } = monthBounds(d);
   return state.transactions.filter((t) => inRange(t, start, end));
 }
 
-function monthTotals() {
-  const txs = monthTxs();
+function monthTxs() {
+  return monthTxsFor(state.viewDate);
+}
+
+function monthTotalsFor(d) {
+  const txs = monthTxsFor(d);
   const income = txs.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
   const expense = txs.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
   return { income, expense, balance: income - expense };
+}
+
+function monthTotals() {
+  return monthTotalsFor(state.viewDate);
 }
 
 function showToast(msg) {
@@ -181,6 +188,7 @@ function setScreen(name) {
     home: document.getElementById("screenHome"),
     add: document.getElementById("screenAdd"),
     report: document.getElementById("screenReport"),
+    month: document.getElementById("screenMonth"),
   };
   Object.entries(screens).forEach(([key, el]) => {
     const active = key === name;
@@ -194,6 +202,7 @@ function setScreen(name) {
   if (name === "home") renderHome();
   if (name === "add") renderAdd();
   if (name === "report") renderReport();
+  if (name === "month") renderMonthList();
 }
 
 function relativeTime(dateStr) {
@@ -228,6 +237,39 @@ function fmtSigned(n) {
   return fmt(0);
 }
 
+const WEEKDAY_LABELS = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+
+function startOfDay(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function sameMonth(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+}
+
+function parseTxDate(dateStr) {
+  return new Date(dateStr + "T12:00:00");
+}
+
+function formatMd(dateStr) {
+  const d = parseTxDate(dateStr);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
+function dayGroupNet(items) {
+  return items.reduce((s, t) => {
+    if (t.type === "income") return s + t.amount;
+    return s - t.amount;
+  }, 0);
+}
+
+function sortTxsDesc(list) {
+  return [...list].sort((a, b) => {
+    if (a.date === b.date) return b.id - a.id;
+    return b.date.localeCompare(a.date);
+  });
+}
+
 function groupTxsByDate(list) {
   const groups = [];
   const map = new Map();
@@ -242,16 +284,64 @@ function groupTxsByDate(list) {
   return groups;
 }
 
-function dayGroupNet(items) {
-  return items.reduce((s, t) => {
-    if (t.type === "income") return s + t.amount;
-    return s - t.amount;
-  }, 0);
+/** Four-tier buckets for current month; per-day groups for other months. */
+function bucketMonthTxs(viewMonthDate) {
+  const scoped = sortTxsDesc(monthTxsFor(viewMonthDate));
+  const now = new Date();
+  if (!sameMonth(now, viewMonthDate)) {
+    return groupTxsByDate(scoped).map((g) => ({
+      id: g.date,
+      label: formatMd(g.date),
+      items: g.items,
+      rowSubtitle: () => null,
+    }));
+  }
+
+  const today = startOfDay(now);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const { start: weekStart, end: weekEnd } = weekBounds(now);
+
+  const buckets = [
+    { id: "today", label: "今天", items: [], rowSubtitle: () => null },
+    { id: "yesterday", label: "昨天", items: [], rowSubtitle: () => null },
+    {
+      id: "week",
+      label: "本週",
+      items: [],
+      rowSubtitle: (tx) => WEEKDAY_LABELS[parseTxDate(tx.date).getDay()],
+    },
+    {
+      id: "earlier",
+      label: "本月稍早",
+      items: [],
+      rowSubtitle: (tx) => formatMd(tx.date),
+    },
+  ];
+  const byId = Object.fromEntries(buckets.map((b) => [b.id, b]));
+
+  scoped.forEach((tx) => {
+    const t = startOfDay(parseTxDate(tx.date));
+    if (t.getTime() === today.getTime()) {
+      byId.today.items.push(tx);
+    } else if (t.getTime() === yesterday.getTime()) {
+      byId.yesterday.items.push(tx);
+    } else if (t >= weekStart && t <= weekEnd) {
+      byId.week.items.push(tx);
+    } else {
+      byId.earlier.items.push(tx);
+    }
+  });
+
+  return buckets.filter((b) => b.items.length);
 }
 
-function renderTxRow(tx) {
+function renderTxRow(tx, subtitle) {
   const meta = catMeta(tx.category, tx.type);
   const sign = tx.type === "income" ? "+" : "-";
+  const sub = subtitle
+    ? `<div class="tx-sub">${escapeHtml(subtitle)}</div>`
+    : "";
   return `
     <div class="tx-swipe" data-id="${tx.id}">
       <div class="tx-swipe-actions">
@@ -260,14 +350,42 @@ function renderTxRow(tx) {
       </div>
       <div class="tx-swipe-content">
         <div class="tx-icon" style="background:${meta.bg};color:${meta.fg}">${iconSvg(meta.icon)}</div>
-        <div class="tx-title">${escapeHtml(txTitle(tx))}</div>
+        <div class="tx-main">
+          <div class="tx-title">${escapeHtml(txTitle(tx))}</div>
+          ${sub}
+        </div>
         <div class="tx-amt ${tx.type}">${sign}${fmt(tx.amount)}</div>
       </div>
     </div>`;
 }
 
+function renderBucketGroups(groups, options = {}) {
+  const { perGroupLimit = Infinity, totalLimit = Infinity } = options;
+  let remaining = totalLimit;
+  const parts = [];
+
+  for (const g of groups) {
+    if (remaining <= 0) break;
+    const net = dayGroupNet(g.items);
+    const netClass = net < 0 ? "expense" : net > 0 ? "income" : "";
+    const visible = g.items.slice(0, Math.min(perGroupLimit, remaining));
+    remaining -= visible.length;
+    parts.push(`
+      <div class="tx-day-head">
+        <span>${escapeHtml(g.label)} · 共 ${g.items.length} 筆 · <span class="tx-day-net ${netClass}">${fmtSigned(net)}</span></span>
+      </div>
+      ${visible.map((tx) => renderTxRow(tx, g.rowSubtitle(tx))).join("")}
+    `);
+  }
+  return parts.join("");
+}
+
 function prevMonthDate(d) {
   return new Date(d.getFullYear(), d.getMonth() - 1, 1);
+}
+
+function nextMonthDate(d) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 1);
 }
 
 function monthExpenseTotal(d) {
@@ -317,11 +435,11 @@ function buildSparklineSvg(values) {
   return `<svg class="spark-svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="#ff9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
 
-function renderBalanceTrend(expense) {
+function renderBalanceTrend(expense, baseDate = new Date()) {
   const trendEl = document.getElementById("homeTrend");
   const sparkEl = document.getElementById("homeSparkline");
-  const prevExpense = monthExpenseTotal(prevMonthDate(state.viewDate));
-  sparkEl.innerHTML = buildSparklineSvg(dailyExpenseSeries(state.viewDate));
+  const prevExpense = monthExpenseTotal(prevMonthDate(baseDate));
+  sparkEl.innerHTML = buildSparklineSvg(dailyExpenseSeries(baseDate));
 
   trendEl.classList.remove("up", "down", "flat");
   if (!prevExpense && !expense) {
@@ -352,17 +470,17 @@ function renderBalanceTrend(expense) {
 
 /* ── Home ── */
 function renderHome() {
-  const d = state.viewDate;
+  const d = new Date();
   document.getElementById("homeMonthTitle").textContent = `${d.getFullYear()}年${d.getMonth() + 1}月`;
 
-  const { income, expense, balance } = monthTotals();
+  const { income, expense, balance } = monthTotalsFor(d);
   const balEl = document.getElementById("homeBalance");
   balEl.textContent = (balance < 0 ? "-" : "") + fmt(Math.abs(balance));
   balEl.classList.toggle("is-negative", balance < 0);
   balEl.classList.toggle("is-positive", balance > 0);
   document.getElementById("homeIncome").textContent = fmt(income);
   document.getElementById("homeExpense").textContent = fmt(expense);
-  renderBalanceTrend(expense);
+  renderBalanceTrend(expense, d);
 
   const quick = document.getElementById("quickCats");
   quick.innerHTML =
@@ -380,36 +498,50 @@ function renderHome() {
         <span class="quick-cat-label">更多</span>
       </button>`;
 
-  const sorted = [...state.transactions].sort((a, b) => {
-    if (a.date === b.date) return b.id - a.id;
-    return b.date.localeCompare(a.date);
-  });
-  const list = state.showAllRecent ? sorted : sorted.slice(0, 5);
-  const viewAllBtn = document.getElementById("btnViewAll");
-  const viewAllLabel = document.getElementById("viewAllLabel");
-  viewAllLabel.textContent = state.showAllRecent ? "收合" : "查看全部";
-  viewAllBtn.setAttribute("aria-expanded", state.showAllRecent ? "true" : "false");
-
   const listEl = document.getElementById("recentList");
-  if (!list.length) {
+  const groups = bucketMonthTxs(d);
+  if (!groups.length) {
     listEl.innerHTML = `<div class="empty-hint">還沒有交易，點上方分類新增一筆</div>`;
+  } else {
+    listEl.innerHTML = renderBucketGroups(groups, { perGroupLimit: 3, totalLimit: 10 });
+    bindSwipeRows(listEl);
+  }
+}
+
+function monthInputValue(d) {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${d.getFullYear()}-${m}`;
+}
+
+function renderMonthList() {
+  const d = state.viewDate;
+  document.getElementById("monthListTitle").textContent = `${d.getFullYear()}年${d.getMonth() + 1}月`;
+  document.getElementById("monthPickerInput").value = monthInputValue(d);
+
+  const { balance } = monthTotalsFor(d);
+  const balEl = document.getElementById("monthListBalance");
+  balEl.textContent = (balance < 0 ? "-" : "") + fmt(Math.abs(balance));
+  balEl.classList.toggle("is-negative", balance < 0);
+  balEl.classList.toggle("is-positive", balance > 0);
+
+  const listEl = document.getElementById("monthTxList");
+  const groups = bucketMonthTxs(d);
+  if (!groups.length) {
+    listEl.innerHTML = `<div class="empty-hint">這個月還沒有交易</div>`;
     return;
   }
-
-  const groups = groupTxsByDate(list);
-  listEl.innerHTML = groups
-    .map((g) => {
-      const net = dayGroupNet(g.items);
-      const netClass = net < 0 ? "expense" : net > 0 ? "income" : "";
-      const head = `
-        <div class="tx-day-head">
-          <span>${relativeTime(g.date)} · 共 ${g.items.length} 筆 · <span class="tx-day-net ${netClass}">${fmtSigned(net)}</span></span>
-        </div>`;
-      return head + g.items.map(renderTxRow).join("");
-    })
-    .join("");
-
+  listEl.innerHTML = renderBucketGroups(groups);
   bindSwipeRows(listEl);
+}
+
+function shiftListMonth(delta) {
+  state.viewDate = delta < 0 ? prevMonthDate(state.viewDate) : nextMonthDate(state.viewDate);
+  renderMonthList();
+}
+
+function openMonthList() {
+  state.viewDate = new Date();
+  setScreen("month");
 }
 
 const SWIPE_WIDTH = 176;
@@ -508,7 +640,8 @@ function bindSwipeRows(listEl) {
 function deleteTransaction(id) {
   state.transactions = state.transactions.filter((t) => t.id !== id);
   saveTransactions();
-  renderHome();
+  if (state.screen === "month") renderMonthList();
+  else renderHome();
   showToast("已刪除");
 }
 
@@ -643,7 +776,6 @@ function saveAdd() {
     }
     state.editingId = null;
     saveTransactions();
-    state.showAllRecent = false;
     setScreen("home");
     showToast("已更新");
     return;
@@ -660,7 +792,6 @@ function saveAdd() {
     note: note || undefined,
   });
   saveTransactions();
-  state.showAllRecent = false;
   setScreen("home");
   showToast("已儲存");
 }
@@ -773,33 +904,51 @@ function renderReport() {
     .join("");
 }
 
+function handleTxListClick(e) {
+  const editBtn = e.target.closest("[data-edit]");
+  if (editBtn) {
+    e.preventDefault();
+    openEdit(Number(editBtn.dataset.edit));
+    return;
+  }
+  const delBtn = e.target.closest("[data-delete]");
+  if (!delBtn) return;
+  e.preventDefault();
+  deleteTransaction(Number(delBtn.dataset.delete));
+}
+
 /* ── Events ── */
 function bindEvents() {
-  document.getElementById("btnOpenReport").addEventListener("click", () => setScreen("report"));
+  document.getElementById("btnOpenReport").addEventListener("click", () => {
+    state.viewDate = new Date();
+    setScreen("report");
+  });
   document.getElementById("btnBackHome").addEventListener("click", () => setScreen("home"));
+  document.getElementById("btnBackFromMonth").addEventListener("click", () => setScreen("home"));
   document.getElementById("btnCloseAdd").addEventListener("click", () => {
     state.editingId = null;
     setScreen("home");
   });
   document.getElementById("btnSaveAdd").addEventListener("click", saveAdd);
 
-  document.getElementById("btnViewAll").addEventListener("click", () => {
-    state.showAllRecent = !state.showAllRecent;
-    renderHome();
+  document.getElementById("btnOpenMonthList").addEventListener("click", openMonthList);
+  document.getElementById("btnMonthPrev").addEventListener("click", () => shiftListMonth(-1));
+  document.getElementById("btnMonthNext").addEventListener("click", () => shiftListMonth(1));
+  document.getElementById("btnMonthPicker").addEventListener("click", () => {
+    const input = document.getElementById("monthPickerInput");
+    if (typeof input.showPicker === "function") input.showPicker();
+    else input.click();
+  });
+  document.getElementById("monthPickerInput").addEventListener("change", (e) => {
+    const v = e.target.value;
+    if (!v) return;
+    const [y, m] = v.split("-").map(Number);
+    state.viewDate = new Date(y, m - 1, 1);
+    renderMonthList();
   });
 
-  document.getElementById("recentList").addEventListener("click", (e) => {
-    const editBtn = e.target.closest("[data-edit]");
-    if (editBtn) {
-      e.preventDefault();
-      openEdit(Number(editBtn.dataset.edit));
-      return;
-    }
-    const delBtn = e.target.closest("[data-delete]");
-    if (!delBtn) return;
-    e.preventDefault();
-    deleteTransaction(Number(delBtn.dataset.delete));
-  });
+  document.getElementById("recentList").addEventListener("click", handleTxListClick);
+  document.getElementById("monthTxList").addEventListener("click", handleTxListClick);
 
   document.getElementById("quickCats").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-quick]");
