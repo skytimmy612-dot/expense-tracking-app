@@ -140,7 +140,7 @@ body {
 
 /* ── Home ── */
 .screen-home {
-  background: #eef2ff;
+  background: #fff;
 }
 
 .home-top {
@@ -149,7 +149,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: calc(14px + var(--safe-top)) 16px 12px;
-  background: linear-gradient(180deg, #dbeafe 0%, #eef2ff 100%);
+  background: #fff;
 }
 
 .home-month {
@@ -167,7 +167,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #eef2ff;
+  background: #fff;
 }
 
 .balance-card {
