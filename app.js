@@ -176,9 +176,20 @@ function showToast(msg) {
 
 function setScreen(name) {
   state.screen = name;
-  document.getElementById("screenHome").classList.toggle("hidden", name !== "home");
-  document.getElementById("screenAdd").classList.toggle("hidden", name !== "add");
-  document.getElementById("screenReport").classList.toggle("hidden", name !== "report");
+  const screens = {
+    home: document.getElementById("screenHome"),
+    add: document.getElementById("screenAdd"),
+    report: document.getElementById("screenReport"),
+  };
+  Object.entries(screens).forEach(([key, el]) => {
+    const active = key === name;
+    el.classList.toggle("hidden", !active);
+    el.classList.remove("screen-enter");
+    if (active) {
+      void el.offsetWidth;
+      el.classList.add("screen-enter");
+    }
+  });
   if (name === "home") renderHome();
   if (name === "add") renderAdd();
   if (name === "report") renderReport();
