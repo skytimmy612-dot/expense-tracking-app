@@ -226,7 +226,10 @@ function renderHome() {
   document.getElementById("homeMonthTitle").textContent = `${d.getFullYear()}年${d.getMonth() + 1}月`;
 
   const { income, expense, balance } = monthTotals();
-  document.getElementById("homeBalance").textContent = fmt(balance);
+  const balEl = document.getElementById("homeBalance");
+  balEl.textContent = (balance < 0 ? "-" : "") + fmt(Math.abs(balance));
+  balEl.classList.toggle("is-negative", balance < 0);
+  balEl.classList.toggle("is-positive", balance > 0);
   document.getElementById("homeIncome").textContent = fmt(income);
   document.getElementById("homeExpense").textContent = fmt(expense);
 

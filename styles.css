@@ -291,6 +291,14 @@ body {
   color: var(--ink);
 }
 
+.balance-amount.is-negative {
+  color: var(--expense);
+}
+
+.balance-amount.is-positive {
+  color: var(--income);
+}
+
 .balance-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -373,7 +381,8 @@ body {
 
 .panel-tx {
   background: var(--glass);
-  flex: 1;
+  flex: 0 0 auto;
+  width: 100%;
   min-height: 160px;
 }
 
@@ -426,9 +435,9 @@ body {
 }
 
 .quick-cat-icon.more {
-  background: #f9fafb;
-  border: 1.5px dashed #d1d5db;
-  color: var(--muted);
+  background: var(--cat-more);
+  border: none;
+  color: var(--cat-more-fg);
   font-size: 22px;
   font-weight: 600;
 }
@@ -466,17 +475,21 @@ body {
 .tx-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  overflow: hidden;
+  gap: 0;
+  overflow: visible;
 }
 
 .tx-swipe {
   position: relative;
-  border-radius: 16px;
+  border-radius: 0;
   overflow: hidden;
-  background: #ff3b30;
-  box-shadow: var(--shadow-press);
+  background: transparent;
+  box-shadow: none;
   animation: cardIn 0.35s var(--ease-out) both;
+}
+
+.tx-swipe + .tx-swipe .tx-swipe-content {
+  border-top: 1px solid var(--line);
 }
 
 .tx-swipe:nth-child(1) { animation-delay: 0.02s; }
@@ -523,9 +536,9 @@ body {
   grid-template-columns: 44px 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 12px 14px;
-  background: var(--glass-strong);
-  border-radius: 16px;
+  padding: 14px 4px;
+  background: #ffffff;
+  border-radius: 0;
   transition: transform 0.2s ease;
   touch-action: pan-y;
   will-change: transform;
@@ -554,8 +567,9 @@ body {
 }
 
 .tx-time {
-  font-size: 13px;
-  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  color: #636366;
   margin-top: 3px;
 }
 
