@@ -221,6 +221,135 @@ function txTitle(tx) {
   return tx.category;
 }
 
+function fmtSigned(n) {
+  const num = Number(n) || 0;
+  if (num < 0) return `-${fmt(Math.abs(num))}`;
+  if (num > 0) return `+${fmt(num)}`;
+  return fmt(0);
+}
+
+function groupTxsByDate(list) {
+  const groups = [];
+  const map = new Map();
+  list.forEach((tx) => {
+    if (!map.has(tx.date)) {
+      const g = { date: tx.date, items: [] };
+      map.set(tx.date, g);
+      groups.push(g);
+    }
+    map.get(tx.date).items.push(tx);
+  });
+  return groups;
+}
+
+function dayGroupNet(items) {
+  return items.reduce((s, t) => {
+    if (t.type === "income") return s + t.amount;
+    return s - t.amount;
+  }, 0);
+}
+
+function renderTxRow(tx) {
+  const meta = catMeta(tx.category, tx.type);
+  const sign = tx.type === "income" ? "+" : "-";
+  return `
+    <div class="tx-swipe" data-id="${tx.id}">
+      <div class="tx-swipe-actions">
+        <button type="button" class="tx-edit-btn" data-edit="${tx.id}">編輯</button>
+        <button type="button" class="tx-delete-btn" data-delete="${tx.id}">刪除</button>
+      </div>
+      <div class="tx-swipe-content">
+        <div class="tx-icon" style="background:${meta.bg};color:${meta.fg}">${iconSvg(meta.icon)}</div>
+        <div class="tx-title">${escapeHtml(txTitle(tx))}</div>
+        <div class="tx-amt ${tx.type}">${sign}${fmt(tx.amount)}</div>
+      </div>
+    </div>`;
+}
+
+function prevMonthDate(d) {
+  return new Date(d.getFullYear(), d.getMonth() - 1, 1);
+}
+
+function monthExpenseTotal(d) {
+  const { start, end } = monthBounds(d);
+  return state.transactions
+    .filter((t) => t.type === "expense" && inRange(t, start, end))
+    .reduce((s, t) => s + t.amount, 0);
+}
+
+function dailyExpenseSeries(d) {
+  const y = d.getFullYear();
+  const m = d.getMonth();
+  const today = new Date();
+  const lastDay =
+    today.getFullYear() === y && today.getMonth() === m
+      ? today.getDate()
+      : new Date(y, m + 1, 0).getDate();
+  const totals = Array.from({ length: lastDay }, () => 0);
+  const { start, end } = monthBounds(d);
+  state.transactions
+    .filter((t) => t.type === "expense" && inRange(t, start, end))
+    .forEach((t) => {
+      const day = Number(t.date.slice(8, 10));
+      if (day >= 1 && day <= lastDay) totals[day - 1] += t.amount;
+    });
+  return totals;
+}
+
+function buildSparklineSvg(values) {
+  const w = 72;
+  const h = 28;
+  const pad = 2;
+  if (!values.length) {
+    return `<svg class="spark-svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><path d="M${pad} ${h / 2} L${w - pad} ${h / 2}" fill="none" stroke="#ff9500" stroke-width="2" stroke-linecap="round"/></svg>`;
+  }
+  const max = Math.max(...values, 1);
+  const min = 0;
+  const span = Math.max(max - min, 1);
+  const n = values.length;
+  const pts = values
+    .map((v, i) => {
+      const x = pad + (n === 1 ? (w - pad * 2) / 2 : (i / (n - 1)) * (w - pad * 2));
+      const y = h - pad - ((v - min) / span) * (h - pad * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return `<svg class="spark-svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="#ff9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function renderBalanceTrend(expense) {
+  const trendEl = document.getElementById("homeTrend");
+  const sparkEl = document.getElementById("homeSparkline");
+  const prevExpense = monthExpenseTotal(prevMonthDate(state.viewDate));
+  sparkEl.innerHTML = buildSparklineSvg(dailyExpenseSeries(state.viewDate));
+
+  trendEl.classList.remove("up", "down", "flat");
+  if (!prevExpense && !expense) {
+    trendEl.textContent = "較上月 —";
+    trendEl.classList.add("flat");
+    return;
+  }
+  if (!prevExpense && expense) {
+    trendEl.textContent = "較上月 —";
+    trendEl.classList.add("flat");
+    return;
+  }
+  const pct = ((expense - prevExpense) / prevExpense) * 100;
+  const rounded = Math.round(Math.abs(pct));
+  if (Math.abs(pct) < 0.5) {
+    trendEl.textContent = "較上月 持平";
+    trendEl.classList.add("flat");
+    return;
+  }
+  if (pct > 0) {
+    trendEl.textContent = `↗ 較上月 +${rounded}%`;
+    trendEl.classList.add("up");
+  } else {
+    trendEl.textContent = `↘ 較上月 -${rounded}%`;
+    trendEl.classList.add("down");
+  }
+}
+
 /* ── Home ── */
 function renderHome() {
   const d = state.viewDate;
@@ -233,6 +362,7 @@ function renderHome() {
   balEl.classList.toggle("is-positive", balance > 0);
   document.getElementById("homeIncome").textContent = fmt(income);
   document.getElementById("homeExpense").textContent = fmt(expense);
+  renderBalanceTrend(expense);
 
   const quick = document.getElementById("quickCats");
   quick.innerHTML =
@@ -266,25 +396,16 @@ function renderHome() {
     return;
   }
 
-  listEl.innerHTML = list
-    .map((tx) => {
-      const meta = catMeta(tx.category, tx.type);
-      const sign = tx.type === "income" ? "+" : "-";
-      return `
-        <div class="tx-swipe" data-id="${tx.id}">
-          <div class="tx-swipe-actions">
-            <button type="button" class="tx-edit-btn" data-edit="${tx.id}">編輯</button>
-            <button type="button" class="tx-delete-btn" data-delete="${tx.id}">刪除</button>
-          </div>
-          <div class="tx-swipe-content">
-            <div class="tx-icon" style="background:${meta.bg};color:${meta.fg}">${iconSvg(meta.icon)}</div>
-            <div>
-              <div class="tx-title">${escapeHtml(txTitle(tx))}</div>
-              <div class="tx-time">${relativeTime(tx.date)}</div>
-            </div>
-            <div class="tx-amt ${tx.type}">${sign}${fmt(tx.amount)}</div>
-          </div>
+  const groups = groupTxsByDate(list);
+  listEl.innerHTML = groups
+    .map((g) => {
+      const net = dayGroupNet(g.items);
+      const netClass = net < 0 ? "expense" : net > 0 ? "income" : "";
+      const head = `
+        <div class="tx-day-head">
+          <span>${relativeTime(g.date)} · 共 ${g.items.length} 筆 · <span class="tx-day-net ${netClass}">${fmtSigned(net)}</span></span>
         </div>`;
+      return head + g.items.map(renderTxRow).join("");
     })
     .join("");
 

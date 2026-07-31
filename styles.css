@@ -275,18 +275,35 @@ body {
   box-shadow: var(--shadow-press);
 }
 
+.balance-main-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
 .balance-label {
   font-size: 15px;
   color: var(--muted);
-  margin-bottom: 8px;
+  margin-bottom: 0;
   font-weight: 600;
+}
+
+.balance-spark {
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.spark-svg {
+  display: block;
 }
 
 .balance-amount {
   font-size: 40px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin-bottom: 0;
+  margin-bottom: 6px;
   line-height: 1.15;
   color: var(--ink);
 }
@@ -297,6 +314,24 @@ body {
 
 .balance-amount.is-positive {
   color: var(--income);
+}
+
+.balance-trend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.balance-trend.up {
+  color: #b45309;
+}
+
+.balance-trend.down {
+  color: var(--income);
+}
+
+.balance-trend.flat {
+  color: var(--muted);
 }
 
 .balance-row {
@@ -506,6 +541,27 @@ body {
   overflow: visible;
 }
 
+.tx-day-head {
+  margin-top: 14px;
+  padding: 0 4px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #636366;
+  border-bottom: 1px solid var(--line);
+}
+
+.tx-day-head:first-child {
+  margin-top: 0;
+}
+
+.tx-day-net.expense {
+  color: var(--expense);
+}
+
+.tx-day-net.income {
+  color: var(--income);
+}
+
 .tx-swipe {
   position: relative;
   border-radius: 0;
@@ -599,6 +655,7 @@ body {
 .tx-title {
   font-size: 17px;
   font-weight: 600;
+  min-width: 0;
 }
 
 .tx-time {

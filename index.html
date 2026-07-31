@@ -22,8 +22,12 @@
       <div class="home-scroll">
         <button type="button" class="balance-card" id="btnOpenReport">
           <div class="balance-main-card">
-            <div class="balance-label">本月結餘</div>
+            <div class="balance-main-top">
+              <div class="balance-label">本月結餘</div>
+              <div class="balance-spark" id="homeSparkline" aria-hidden="true"></div>
+            </div>
             <div class="balance-amount" id="homeBalance">NT$ 0</div>
+            <div class="balance-trend" id="homeTrend"></div>
           </div>
           <div class="balance-row">
             <div class="balance-side">
