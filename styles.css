@@ -174,16 +174,26 @@ body {
   width: 100%;
   text-align: left;
   border: none;
-  background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+  background: linear-gradient(160deg, #dbeafe 0%, #bfdbfe 100%);
   border-radius: 20px;
-  padding: 20px 18px;
+  padding: 14px;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.12);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.balance-main-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 16px 14px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
 }
 
 .balance-label {
   font-size: 15px;
-  color: #059669;
+  color: #2563eb;
   margin-bottom: 8px;
   font-weight: 600;
 }
@@ -192,24 +202,25 @@ body {
   font-size: 40px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin-bottom: 18px;
+  margin-bottom: 0;
   line-height: 1.15;
-  color: #064e3b;
+  color: #0f172a;
 }
 
 .balance-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 .balance-side {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.7);
+  background: #fff;
   border-radius: 14px;
-  padding: 10px 12px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
 }
 
 .side-icon {
@@ -271,7 +282,7 @@ body {
 }
 
 .panel-tx {
-  background: linear-gradient(160deg, #ffffff 0%, #f5f3ff 100%);
+  background: linear-gradient(160deg, #ede9fe 0%, #e0e7ff 100%);
   flex: 1;
   min-height: 160px;
 }
@@ -285,19 +296,21 @@ body {
 
 .quick-cat {
   border: none;
-  background: transparent;
-  padding: 0;
+  background: #fff;
+  padding: 12px 6px 10px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
 }
 
 .quick-cat-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
   font-size: 24px;
@@ -317,7 +330,7 @@ body {
 }
 
 .quick-cat-icon.more {
-  background: var(--card);
+  background: #f9fafb;
   border: 1.5px dashed #d1d5db;
   color: var(--muted);
   font-size: 22px;
@@ -357,15 +370,16 @@ body {
 .tx-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   overflow: hidden;
 }
 
 .tx-swipe {
   position: relative;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   background: #fee2e2;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
 }
 
 .tx-swipe-actions {
@@ -395,8 +409,9 @@ body {
   grid-template-columns: 44px 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 10px 4px;
-  background: #faf8ff;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 16px;
   transition: transform 0.2s ease;
   touch-action: pan-y;
   will-change: transform;
