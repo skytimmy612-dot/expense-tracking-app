@@ -68,6 +68,7 @@ const state = {
     category: "餐飲",
     date: todayStr(),
     note: "",
+    otherDesc: "",
   },
 };
 
@@ -241,7 +242,14 @@ function escapeHtml(str) {
     .replaceAll('"', "&quot;");
 }
 
+function isOtherCategory(cat) {
+  return cat === "其他" || cat === "其他收入";
+}
+
 function txTitle(tx) {
+  if (isOtherCategory(tx.category) && tx.desc && tx.desc.trim() && tx.desc.trim() !== tx.category) {
+    return tx.desc.trim();
+  }
   if (tx.note && tx.note.trim()) return tx.note.trim();
   if (tx.desc && tx.desc.trim()) return tx.desc.trim();
   return tx.category;
@@ -677,6 +685,7 @@ function openAdd(presetCategory) {
     category: presetCategory && presetCategory !== "更多" ? presetCategory : "餐飲",
     date: todayStr(),
     note: "",
+    otherDesc: "",
   };
   setScreen("add");
 }
@@ -684,6 +693,8 @@ function openAdd(presetCategory) {
 function openEdit(id) {
   const tx = state.transactions.find((t) => t.id === id);
   if (!tx) return;
+  const customDesc =
+    isOtherCategory(tx.category) && tx.desc && tx.desc !== tx.category ? tx.desc : "";
   state.editingId = id;
   state.form = {
     type: tx.type === "income" ? "income" : "expense",
@@ -691,6 +702,7 @@ function openEdit(id) {
     category: tx.category,
     date: tx.date,
     note: tx.note || "",
+    otherDesc: customDesc,
   };
   setScreen("add");
 }
@@ -716,6 +728,12 @@ function renderAdd() {
   document.getElementById("addAmountDisplay").textContent = formatAmountInput(state.form.amountStr);
   document.getElementById("addDate").value = state.form.date;
   document.getElementById("addNote").value = state.form.note;
+
+  const otherRow = document.getElementById("otherDescRow");
+  const otherInput = document.getElementById("addOtherDesc");
+  const showOther = isOtherCategory(state.form.category);
+  otherRow.classList.toggle("hidden", !showOther);
+  otherInput.value = state.form.otherDesc || "";
 
   const cats = state.form.type === "income" ? INCOME_CATS : EXPENSE_CATS;
   const grid = document.getElementById("addCatGrid");
@@ -775,6 +793,17 @@ function saveAdd() {
 
   const note = document.getElementById("addNote").value.trim();
   const date = document.getElementById("addDate").value || todayStr();
+  const otherDesc = document.getElementById("addOtherDesc").value.trim();
+  state.form.otherDesc = otherDesc;
+  state.form.note = note;
+
+  if (isOtherCategory(state.form.category) && !otherDesc) {
+    showToast("請輸入說明");
+    document.getElementById("addOtherDesc").focus();
+    return;
+  }
+
+  const desc = isOtherCategory(state.form.category) ? otherDesc : state.form.category;
 
   if (state.editingId) {
     const idx = state.transactions.findIndex((t) => t.id === state.editingId);
@@ -783,7 +812,7 @@ function saveAdd() {
       state.transactions[idx] = {
         ...prev,
         date,
-        desc: state.form.category,
+        desc,
         category: state.form.category,
         type: state.form.type,
         amount,
@@ -801,7 +830,7 @@ function saveAdd() {
   state.transactions.push({
     id: Date.now(),
     date,
-    desc: state.form.category,
+    desc,
     category: state.form.category,
     type: state.form.type,
     amount,
@@ -982,6 +1011,7 @@ function bindEvents() {
       }
       state.form.type = t;
       state.form.category = t === "income" ? INCOME_CATS[0].id : EXPENSE_CATS[0].id;
+      state.form.otherDesc = "";
       renderAdd();
     });
   });
@@ -989,12 +1019,21 @@ function bindEvents() {
   document.getElementById("addCatGrid").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-cat]");
     if (!btn) return;
+    state.form.otherDesc = document.getElementById("addOtherDesc").value;
     state.form.category = btn.dataset.cat;
+    if (!isOtherCategory(state.form.category)) state.form.otherDesc = "";
     renderAdd();
+    if (isOtherCategory(state.form.category)) {
+      document.getElementById("addOtherDesc").focus();
+    }
   });
 
   document.getElementById("addDate").addEventListener("change", (e) => {
     state.form.date = e.target.value;
+  });
+
+  document.getElementById("addOtherDesc").addEventListener("input", (e) => {
+    state.form.otherDesc = e.target.value;
   });
 
   document.getElementById("addNote").addEventListener("input", (e) => {

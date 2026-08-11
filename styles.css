@@ -873,6 +873,14 @@ body {
   margin-bottom: 8px;
 }
 
+.other-desc-row {
+  margin: 0 0 10px;
+}
+
+.other-desc-row.hidden {
+  display: none;
+}
+
 .field-row {
   display: grid;
   grid-template-columns: 28px 1fr auto;
