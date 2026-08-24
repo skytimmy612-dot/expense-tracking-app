@@ -1,6 +1,13 @@
 const STORAGE_KEY = "expense-tracking-app-v3";
 
 const ICONS = {
+  breakfast: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h12a2 2 0 0 0 2-2V9a4 4 0 0 0-4-4H6a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2z"/><path d="M18 10h1a2 2 0 0 1 2 2v1a3 3 0 0 1-3 3h-1"/><path d="M7 18v2M11 18v2M15 18v2"/><path d="M12 3V1M16 4l1.5-1.5M8 4L6.5 2.5"/></svg>`,
+  lunch: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><path d="M12 8v2"/><path d="M5 12h14a2 2 0 0 1 2 2v5H3v-5a2 2 0 0 1 2-2z"/><path d="M8 19v2M12 19v2M16 19v2"/></svg>`,
+  dinner: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/><path d="M12 13v2"/><path d="M5 17h14a2 2 0 0 1 2 2v1H3v-1a2 2 0 0 1 2-2z"/><path d="M8 20v1M12 20v1M16 20v1"/></svg>`,
+  drink: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 14a3 3 0 0 1-6 0L8 3z"/><path d="M7 7h10"/><path d="M10 3l1-2h2l1 2"/><path d="M16 10l3-2M16 14l3 2"/></svg>`,
+  gas: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12"/><path d="M4 20h16"/><path d="M9 6V4h6v2"/><path d="M18 10h2l-2 4h2l-2 4"/></svg>`,
+  tuition: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M6 10.5V16a6 6 0 0 0 12 0v-5.5"/><path d="M20 8v8"/><circle cx="20" cy="18" r="2"/></svg>`,
+  schoolLunch: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="10" rx="2"/><path d="M4 12h16"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M9 15h6"/><circle cx="18" cy="6" r="2"/></svg>`,
   dining: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v8M6 3v5a2 2 0 0 0 4 0V3M8 11v10M16 3c0 4 2 5 2 8v10M16 3v6c0 2-2 2-2 2"/></svg>`,
   transit: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M4 10h16M8 16v2M16 16v2M7 13h.01M17 13h.01"/></svg>`,
   shop: `<svg class="cat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>`,
@@ -37,6 +44,18 @@ function withTone(def) {
 }
 
 const EXPENSE_CATS = [
+  { id: "早餐", icon: "breakfast", tone: "amber" },
+  { id: "午餐", icon: "lunch", tone: "blue" },
+  { id: "晚餐", icon: "dinner", tone: "purple" },
+  { id: "飲料", icon: "drink", tone: "pink" },
+  { id: "加油", icon: "gas", tone: "red" },
+  { id: "學費", icon: "tuition", tone: "teal" },
+  { id: "營養午餐", icon: "schoolLunch", tone: "green" },
+  { id: "其他", icon: "more", tone: "gray", dashed: true },
+].map(withTone);
+
+/** Legacy categories — keep icons/colors for older saved transactions. */
+const LEGACY_EXPENSE_CATS = [
   { id: "餐飲", icon: "dining", tone: "amber" },
   { id: "交通", icon: "transit", tone: "blue" },
   { id: "購物", icon: "shop", tone: "purple" },
@@ -44,7 +63,6 @@ const EXPENSE_CATS = [
   { id: "醫療", icon: "health", tone: "red" },
   { id: "娛樂", icon: "fun", tone: "pink" },
   { id: "學習", icon: "study", tone: "teal" },
-  { id: "其他", icon: "more", tone: "gray", dashed: true },
 ].map(withTone);
 
 const INCOME_CATS = [
@@ -54,7 +72,7 @@ const INCOME_CATS = [
   { id: "其他收入", icon: "coin", tone: "purple" },
 ].map(withTone);
 
-const QUICK_CATS = ["餐飲", "交通", "購物"];
+const QUICK_CATS = ["早餐", "午餐", "晚餐", "飲料", "加油", "學費", "營養午餐"];
 
 const state = {
   screen: "home",
@@ -65,7 +83,7 @@ const state = {
   form: {
     type: "expense",
     amountStr: "0",
-    category: "餐飲",
+    category: "早餐",
     date: todayStr(),
     note: "",
     otherDesc: "",
@@ -110,10 +128,15 @@ function catMeta(name, type) {
     return INCOME_CATS.find((c) => c.id === name) || INCOME_CATS[0];
   }
   if (type === "expense") {
-    return EXPENSE_CATS.find((c) => c.id === name) || EXPENSE_CATS[EXPENSE_CATS.length - 1];
+    return (
+      EXPENSE_CATS.find((c) => c.id === name) ||
+      LEGACY_EXPENSE_CATS.find((c) => c.id === name) ||
+      EXPENSE_CATS[EXPENSE_CATS.length - 1]
+    );
   }
   return (
     EXPENSE_CATS.find((c) => c.id === name) ||
+    LEGACY_EXPENSE_CATS.find((c) => c.id === name) ||
     INCOME_CATS.find((c) => c.id === name) ||
     EXPENSE_CATS[EXPENSE_CATS.length - 1]
   );
@@ -682,7 +705,7 @@ function openAdd(presetCategory) {
   state.form = {
     type: "expense",
     amountStr: "0",
-    category: presetCategory && presetCategory !== "更多" ? presetCategory : "餐飲",
+    category: presetCategory && presetCategory !== "更多" ? presetCategory : "早餐",
     date: todayStr(),
     note: "",
     otherDesc: "",
