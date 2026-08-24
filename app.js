@@ -707,7 +707,7 @@ function openAdd(presetCategory) {
   state.form = {
     type: "expense",
     amountStr: "0",
-    category: presetCategory && presetCategory !== "更多" ? presetCategory : "早餐",
+    category: presetCategory && presetCategory !== "更多" ? presetCategory : "餐飲",
     date: todayStr(),
     note: "",
     otherDesc: "",
