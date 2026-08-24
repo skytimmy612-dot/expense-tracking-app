@@ -44,6 +44,13 @@ function withTone(def) {
 }
 
 const EXPENSE_CATS = [
+  { id: "餐飲", icon: "dining", tone: "amber" },
+  { id: "交通", icon: "transit", tone: "blue" },
+  { id: "購物", icon: "shop", tone: "purple" },
+  { id: "居家", icon: "home", tone: "green" },
+  { id: "醫療", icon: "health", tone: "red" },
+  { id: "娛樂", icon: "fun", tone: "pink" },
+  { id: "學習", icon: "study", tone: "teal" },
   { id: "早餐", icon: "breakfast", tone: "amber" },
   { id: "午餐", icon: "lunch", tone: "blue" },
   { id: "晚餐", icon: "dinner", tone: "purple" },
@@ -54,17 +61,6 @@ const EXPENSE_CATS = [
   { id: "其他", icon: "more", tone: "gray", dashed: true },
 ].map(withTone);
 
-/** Legacy categories — keep icons/colors for older saved transactions. */
-const LEGACY_EXPENSE_CATS = [
-  { id: "餐飲", icon: "dining", tone: "amber" },
-  { id: "交通", icon: "transit", tone: "blue" },
-  { id: "購物", icon: "shop", tone: "purple" },
-  { id: "居家", icon: "home", tone: "green" },
-  { id: "醫療", icon: "health", tone: "red" },
-  { id: "娛樂", icon: "fun", tone: "pink" },
-  { id: "學習", icon: "study", tone: "teal" },
-].map(withTone);
-
 const INCOME_CATS = [
   { id: "薪資", icon: "salary", tone: "green" },
   { id: "兼職", icon: "freelance", tone: "blue" },
@@ -72,7 +68,18 @@ const INCOME_CATS = [
   { id: "其他收入", icon: "coin", tone: "purple" },
 ].map(withTone);
 
-const QUICK_CATS = ["早餐", "午餐", "晚餐", "飲料", "加油", "學費", "營養午餐"];
+const QUICK_CATS = [
+  "餐飲",
+  "交通",
+  "購物",
+  "早餐",
+  "午餐",
+  "晚餐",
+  "飲料",
+  "加油",
+  "學費",
+  "營養午餐",
+];
 
 const state = {
   screen: "home",
@@ -83,7 +90,7 @@ const state = {
   form: {
     type: "expense",
     amountStr: "0",
-    category: "早餐",
+    category: "餐飲",
     date: todayStr(),
     note: "",
     otherDesc: "",
@@ -128,15 +135,10 @@ function catMeta(name, type) {
     return INCOME_CATS.find((c) => c.id === name) || INCOME_CATS[0];
   }
   if (type === "expense") {
-    return (
-      EXPENSE_CATS.find((c) => c.id === name) ||
-      LEGACY_EXPENSE_CATS.find((c) => c.id === name) ||
-      EXPENSE_CATS[EXPENSE_CATS.length - 1]
-    );
+    return EXPENSE_CATS.find((c) => c.id === name) || EXPENSE_CATS[EXPENSE_CATS.length - 1];
   }
   return (
     EXPENSE_CATS.find((c) => c.id === name) ||
-    LEGACY_EXPENSE_CATS.find((c) => c.id === name) ||
     INCOME_CATS.find((c) => c.id === name) ||
     EXPENSE_CATS[EXPENSE_CATS.length - 1]
   );
@@ -705,7 +707,7 @@ function openAdd(presetCategory) {
   state.form = {
     type: "expense",
     amountStr: "0",
-    category: presetCategory && presetCategory !== "更多" ? presetCategory : "早餐",
+    category: presetCategory && presetCategory !== "更多" ? presetCategory : "餐飲",
     date: todayStr(),
     note: "",
     otherDesc: "",
